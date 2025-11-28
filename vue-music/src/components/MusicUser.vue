@@ -9,11 +9,12 @@ const router = useRouter()
 const isShowNotes = ref(false)
 const note = ref('')
 const isCreateSongList = ref(false)
+let isAllowCreate = false
 const SongListTitle = ref('')
+const SongListImg = ref<string[]>([])
 const talkOne = localStorage.getItem('notes')
 const talkTwo = talkOne ? JSON.parse(talkOne) : []
 const talks = ref<Array<string>>(talkTwo)
-let createTalkBox = document.querySelector('.createTalk') 
 const createTalk = (talk:string) => {
     const div = document.createElement('div')
     div.innerHTML = talk
@@ -48,22 +49,27 @@ const checkMusicList = (songListID:number) => {
     })
 }
 const createSongList = () => {
-    SongListStore.createSongList.push(
+    if(isAllowCreate) {
+        SongListStore.createSongList.push(
         {
             id: +new Date(),
-            songListImg:'/images/zanwu.png',
-            title:SongListTitle.value,
-            song:[]
+            songListImg:SongListImg.value[0]!,
+            title:SongListTitle.value || '默认歌单',
+            song:[],
+            isDelete:true
         }
     )
-    SongListStore.createSongList.forEach(item => {
-        SongListStore.songLists.push(item)
-    })
-    console.log(SongListStore.songLists)
-    SongListTitle.value = ''
-    isCreateSongList.value = false
-    console.log(111)
+    }
     
+    isAllowCreate = false
+    // SongListStore.createSongList.forEach(item => {
+    //     SongListStore.songLists.push(item)
+    // })
+    // console.log(SongListStore.songLists)
+    
+    SongListTitle.value = ''
+    SongListImg.value = []
+    isCreateSongList.value = false
 }
 watch(talks,() => {
     localStorage.setItem('notes',JSON.stringify(talks.value))
@@ -84,6 +90,27 @@ const publishNote = (note:string) => {
     talks.value!.push(note)
     createTalk(note)
 }
+const getSongListImg = (e:Event ) => {
+    isAllowCreate = false
+    const target = e.target as HTMLInputElement
+     const flie = target.files![0] as File
+     const Max = 0.25 * 1024 * 1024
+     if(flie.size > Max){
+        alert('图片大小不能超过500KB')
+        target.files = null
+        isAllowCreate = false
+        return
+     }
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const result = event.target?.result as string
+            if(event.target){
+                SongListImg.value.push(result)
+            }
+        }
+        reader.readAsDataURL(flie)
+        isAllowCreate = true
+}
 </script>
 
 <template>
@@ -95,7 +122,7 @@ const publishNote = (note:string) => {
                 <ul>
                     <li @click="clickNote">
                         <span>笔记</span>
-                        <span>0</span>
+                        <span>{{ talks.length }}</span>
                     </li>
                     <li>
                         <span>关注</span>
@@ -134,6 +161,7 @@ const publishNote = (note:string) => {
             <div class="create">
                 <h2>歌单信息</h2>
                 <p><span>歌单名称</span><input v-model="SongListTitle" type="text"></p>
+                <p><span>歌单图片</span><input @change="getSongListImg" type="file"></p>
                 <button @click="createSongList">添加</button>
                 <button @click="isCreateSongList = false">取消</button>
             </div>
@@ -225,11 +253,13 @@ const publishNote = (note:string) => {
                     }
                 }
                 ul{
-                    display: flex;
+                    // display: flex;
+                    // word-wrap: break-word;
                     margin: 20px 50px;
                     li{
                         width: 200px;
                         height: 200px;
+                        display: inline-block;
                         margin: 10px;
                         border-radius: 20px;
                         list-style: none;
@@ -285,7 +315,7 @@ const publishNote = (note:string) => {
             top: 0;
             .create{
                 width: 300px;
-                height: 250px;
+                height: 350px;
                 background-color: rgba(186, 180, 180, 0.5);
                 margin: 200px auto;
                 border-radius: 50px;

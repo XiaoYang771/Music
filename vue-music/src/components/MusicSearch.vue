@@ -3,6 +3,7 @@
     import { watch,ref,onBeforeUpdate } from 'vue'
     import { useRouter } from 'vue-router'
     import { useRoute } from 'vue-router'
+    import { useSongListStore } from '@/stores/songList'
 //数据
     //引入路由
     const route = useRoute() 
@@ -10,6 +11,22 @@
     const router = useRouter()
     //引入歌曲pinia的数据
     const MusicStore = useMusicStore()
+    //引入歌单pinia的数据
+    const SongListStore = useSongListStore()
+    //定义是否打开添加列表的变量
+    const showSongListFlag = ref(false)
+    //定义现在想要添加的歌曲
+    const nowMusic = ref()
+     //定义现在选择的歌单列表
+    const nowSongList = ref()
+    //定义现在选择的歌单列表
+    const MySongList = ref()
+     //定义歌单列表的标题
+    const SongListTitle = ref('')
+    const songListOne = localStorage.getItem('MySongList')
+    const songListTwo = songListOne ? JSON.parse(songListOne) : []
+    const songListAll = ref(songListTwo)
+    const finnalySongList = ref(songListAll.value.concat(SongListStore.songLists))
     //声明搜索列表（搜索的歌曲都应该存在歌曲列表中）
     const MusicSearch = ref<musictype[]>([])
     //定义歌曲类型
@@ -24,6 +41,29 @@
             like:boolean
             isplay:boolean,
             lyric:string
+    }
+     //定义歌曲类型
+    interface song {
+        id: number
+        name: string
+        singers: string
+        img: string
+        src: string
+        videoSrc:string
+        time: string
+        like: boolean
+        isplay: boolean,
+        lyric: string,
+    }
+    //定义歌单类型
+    interface typeOne {
+        id:number,
+        songListImg:string,
+        pageview?:number,
+        title:string,
+        content?:string,
+        song:song[],
+        isDelete?:boolean
     }
 //方法
     //校验搜索内容与歌曲进行匹配
@@ -40,15 +80,15 @@
     onBeforeUpdate(() => {
         initView()
     })
-    //向播放列表中进行添加歌曲
-    const addPlayList = (id:number) => {
-      const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
-        const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
-        if(addMusic && !repeatMusic){
-            MusicStore.playList.unshift(addMusic)
-            MusicStore.playMusicByIndex(id)
-        }
-    }
+    // //向播放列表中进行添加歌曲
+    // const addPlayList = (id:number) => {
+    //   const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
+    //     const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
+    //     if(addMusic && !repeatMusic){
+    //         MusicStore.playList.unshift(addMusic)
+    //         MusicStore.playMusicById(id)
+    //     }
+    // }
     //向喜欢列表中进行添加歌曲
     const addLikeMusicList = (music:musictype) =>{
         music.like = true
@@ -59,10 +99,48 @@
             MusicStore.LikeMusicList.unshift(music)
         }
     }
-    //前往MV
-    const goVideo = () => {
-        router.push('/musicvideo')
+   //前往歌词页面
+    const goVideo = (id:number) => {
+        router.push({
+           path: '/musicvideo',
+           query:{
+            id:id
+           }
+        })
     }
+     //点击展开添加列表
+    const showSongList = (music:musictype) => {
+        showSongListFlag.value = true
+        nowMusic.value = music
+    }
+     //向播放列表中添加歌曲
+    const addPlayList = (id:number) => {
+        const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
+        const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
+        if(addMusic && !repeatMusic){
+            MusicStore.playList.unshift(addMusic)
+            MusicStore.isinitialization = true
+            MusicStore.playMusicById(id)
+        }
+    }
+    //向歌单列表中添加歌曲
+    const addSongList = () => {
+        console.log(11);
+        
+        if(SongListTitle.value !== ''){
+            nowSongList.value = finnalySongList.value.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
+            const repeatMusic = nowSongList.value?.song.find((song:musictype) => song.id === nowMusic.value.id )
+            if(!repeatMusic){
+                if(nowSongList.value.id <= 4){
+                    nowSongList.value.song.push(nowMusic.value)//向当前歌单中添加歌曲
+                }else{
+                    MySongList.value = SongListStore.createSongList.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
+                    MySongList.value.song.push(nowMusic.value)
+                }
+            }
+            showSongListFlag.value = false
+        }
+    }   
     //对歌曲列表进行监听并存入本地
     watch(
         MusicStore.finallyMusic,
@@ -71,6 +149,25 @@
         },{
         deep:true
     })
+       //对歌单列表进行监听
+    watch(
+        SongListStore.songLists,
+        () => {
+        localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
+        },{
+            deep:true
+        }
+    )
+    //对自己创建的歌单进行监听
+    watch(
+        SongListStore.createSongList,
+        () => {
+        localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
+        },
+        {
+            deep:true
+        }
+    )
 </script>
 
 <template>
@@ -95,14 +192,27 @@
                     alt="喜欢"
                     >
                 </td>
-                <td><img @click="goVideo" src="/images/MV.png" alt=""></td>
-                <td><img src="../assets/icon/ai03.png" alt=""></td>
+                <td><img @click="goVideo(music.id)" src="/images/MV.png" alt=""></td>
+                <td><img @click="showSongList(music)" src="/images/jia.svg" alt=""></td>
                 <td><img src="../assets/icon/ai03.png" alt=""></td>
             </tr>
         </table>
         <div v-else class="nothingMusic">
             <h2>没有该歌曲哦~</h2>
             <img src="/images/hashiqi.png" alt="">
+        </div>
+    </div>
+     <div v-if="showSongListFlag" class="addSongListBg">
+        <div class="addSongList">
+            <h3>添加歌曲<img @click="showSongListFlag = false" src="/images/chacha.png" alt=""></h3>
+            <p>
+                <span>请您选择歌单</span>
+                <select name="" id="" v-model="SongListTitle">
+                    <option v-for="(SongList,index) in finnalySongList" :value="`${SongList.title}`">{{ SongList.title }}</option>
+                </select>
+                <button @click="addSongList" class="add">添加</button>
+                <button @click="showSongListFlag = false" class="remove">取消</button>
+            </p>
         </div>
     </div>
 </template>
@@ -171,6 +281,45 @@
             height: 80%;
             h2{
                 margin-bottom: 30px;
+            }
+        }
+    }
+    .addSongListBg {
+        position: fixed;
+        width: 70%;
+        height: 87%;
+        margin-top: 50px;
+        color: #fff;
+        background-color: rgba(0,0,0,0.5);
+        top: 0;
+        .addSongList{
+            width: 30%;
+            height: 50%;
+            margin: 18% 35%;
+            background-color: rgba(0,0,0,0.8);
+            h3{
+                img{
+                    width: 30px;
+                    height: 30px;
+                    margin: 5px;
+                    float: right;
+                    cursor: pointer;
+                }
+            }
+            p{
+                width: 100%;
+                font-size: 14px;
+                select{
+                    width: 90%;
+                    height: 30px;
+                    margin: 10% 5%;
+                }
+                button{
+                    width: 40%;
+                    height: 40px;
+                    margin: 100px 5%;
+                    cursor: pointer;
+                }
             }
         }
     }

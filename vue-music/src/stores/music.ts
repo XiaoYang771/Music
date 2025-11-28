@@ -1212,10 +1212,10 @@ export const useMusicStore = defineStore('music',() => {
         })
     })
     //点击歌曲时进行播放当前歌曲
-    const playMusicByIndex = (index:number) => {
+    const playMusicById = (id:number) => {
         //1.更新当前下标
         if(playList.value.length > 0){
-            const PlayIndex = playList.value.findIndex(music => music.id === index)//在播放列表中找当歌曲的下标
+            const PlayIndex = playList.value.findIndex(music => music.id === id)//在播放列表中找当歌曲的下标
             currentIndex.value = PlayIndex//将下标赋值给公共歌曲的索引
             finallyMusicIndex.value = playList.value.length - 1//更新最后一首歌的下标
             //2.切换音频源并控制播放
@@ -1250,11 +1250,10 @@ export const useMusicStore = defineStore('music',() => {
         })
         currentLrcIndex.value = index
     }
-
         return {
             MusicList, lyrics, currentLrcIndex, currentAudioTime, currentIndex, isPlaying, time, audio, MusicListLike,
             LikeMusicList, playList, finallyMusic, finallyMusicIndex, subjectColor, subjectColorWidth, isinitialization,
             isShowSongList, isLogin, nowMusicUser,
-            updateAudioTime, switchToNextMusic, switchToPreMusic, setLyrics, handlePlay, playMusicByIndex, changeColor,
-}
+            updateAudioTime, switchToNextMusic, switchToPreMusic, setLyrics, handlePlay, playMusicById, changeColor,
+        }
 })

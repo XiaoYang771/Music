@@ -18,7 +18,7 @@
         for(const item of musicStore.LikeMusicList) {
             musicStore.playList.push(item)
         }
-        musicStore.playMusicByIndex(musicStore.playList[0]!.id)
+        musicStore.playMusicById(musicStore.playList[0]!.id)
         musicStore.isinitialization = true
         musicStore.finallyMusicIndex = musicStore.playList.length - 1
     }
@@ -51,7 +51,7 @@
     } 
     //对喜欢列表进行监听并存入本地  
     watch(
-        musicStore.LikeMusicList,
+        () => musicStore.LikeMusicList,
         () => {
             localStorage.setItem('MusicListLike',JSON.stringify(musicStore.LikeMusicList))
         },{
@@ -59,7 +59,7 @@
     })
     //对歌曲列表进行监听并存入本地
     watch(
-        musicStore.finallyMusic,
+        () => musicStore.finallyMusic,
         () => {
             localStorage.setItem('MusicList',JSON.stringify(musicStore.finallyMusic))
         },{
@@ -127,7 +127,6 @@
 <style scoped lang="scss">
     .likeMain{
         width: 99%;
-        height: 100%;
         background-color: rgba(0,0,0,0.4);
         color: #fff;
         .musicIntroduce{

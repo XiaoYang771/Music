@@ -2,17 +2,14 @@
     import { useMusicStore } from '@/stores/music';
     import { useSongListStore } from '@/stores/songList';
     import { ref,watch } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute,useRouter } from 'vue-router';
     //引入路由
     const route = useRoute()
+    const router = useRouter()
     //引入歌曲pinia的数据
     const musicStore = useMusicStore()
     //引入歌单pinia的数据
     const songListStore = useSongListStore()
-    //定义响应式筛选后歌取列表的变量
-    const stepOneLike = localStorage.getItem('MusicListLike') || '[]'
-    const stepTwoLike = JSON.parse(stepOneLike)
-    const filterMusicLike = ref(stepTwoLike)
     //定义歌曲的类型
     interface song {
         id: number
@@ -33,7 +30,8 @@
         pageview?:number,
         title:string,
         content?:string,
-        song:song[]
+        song:song[],
+        isDelete?:boolean
     }
     //定义路由传过来的ID
     const querySongListID = route.query.songListID
@@ -41,7 +39,6 @@
     const nowSongListID: number = typeof querySongListID === 'string' ? parseInt(querySongListID, 10) : 0
     //通过当前歌单的ID找到当前歌单
     const filterSongList = ref<typeOne | undefined>((songListStore.songLists.find(songlist => songlist.id == nowSongListID)) || songListStore.createSongList.find(songlist => songlist.id == nowSongListID))
-    //向播放列表中添加歌曲
     const addPlayList = () => {
             while(musicStore.playList[0]) {
                 musicStore.playList.shift()
@@ -49,29 +46,10 @@
             for(const item of filterSongList.value!.song) {
                 musicStore.playList.push(item)
             }
-        musicStore.playMusicByIndex(musicStore.playList[0]!.id)
+        musicStore.playMusicById(musicStore.playList[0]!.id)
         musicStore.isinitialization = true
         musicStore.finallyMusicIndex = musicStore.playList.length - 1
     }
-    //定义清除喜欢的歌曲的函数
-    const clearMusicLike = (id:number) => {
-        //首先先排除掉去除的那一首歌
-           filterMusicLike.value =  musicStore.LikeMusicList.filter(music => music.id !== id)
-        //其次再需要对歌曲列表中的爱心进行取消
-           musicStore.finallyMusic.forEach(item => {
-                if(item.id === id){
-                    item.like = false
-                }
-           })
-        //将喜欢列表中的值全删除变为空数组，直接赋值为改变响应式
-            while(musicStore.LikeMusicList[0]) {
-                musicStore.LikeMusicList.shift()
-            }
-        //再把排除后的歌曲的每一项项喜欢列表中添加，不会改变响应式
-            for(const item of filterMusicLike.value) {
-                musicStore.LikeMusicList.push(item)
-            }
-    } 
     const spliceMusic = (id:number) => {
         const findMusic = filterSongList.value?.song.find((music:song) => music.id === id)
         if(findMusic){
@@ -80,28 +58,28 @@
     }
     //向我的喜欢列表中添加歌曲
     const addLikeMusicList = (music:song) =>{
-        music.like = !music.like
+        music.like = true
         const repeatMusic = musicStore.LikeMusicList.some(item => item.id === music.id)
-        if(!repeatMusic && music.like === true){
+        if(!repeatMusic){
             musicStore.LikeMusicList.unshift(music)
-            musicStore.finallyMusic.forEach(item => {
-                if(item.id === music.id){
-                    item.like = true
-                }
-           })
         }
+    }
+    const deleteSongList = (id:number) => {
+        songListStore.createSongList = songListStore.createSongList.filter(songList => songList.id !== id)
     }
     //对喜欢列表进行监听并存入本地  
     watch(
-        musicStore.LikeMusicList,
+        () => musicStore.LikeMusicList,
         () => {
             localStorage.setItem('MusicListLike',JSON.stringify(musicStore.LikeMusicList))
+            console.log(2345);
+            
         },{
             deep: true
     })
     //对歌曲列表进行监听并存入本地
     watch(
-        musicStore.finallyMusic,
+        () => musicStore.finallyMusic,
         () => {
             localStorage.setItem('MusicList',JSON.stringify(musicStore.finallyMusic))
         },{
@@ -116,9 +94,15 @@
             deep:true
         }
     )
-
-
-    //目前存在问题是爱心不同步
+    //对我的歌单进行监听
+    watch(
+        () => songListStore.createSongList,
+        (newVal) => {
+            localStorage.setItem('MySongList', JSON.stringify(newVal))
+            router.push('/musicuser')
+        },
+        { deep: true }
+    )
 </script>
 
 <template>
@@ -128,7 +112,7 @@
                 <img :src="`${filterSongList?.songListImg || '/images/zanwu.png'}`" alt="">
             </div>
             <div class="introduceRight">
-                <h2>{{ filterSongList?.title }}</h2>
+                <h2>{{ filterSongList?.title }} <span v-if="filterSongList?.isDelete" @click="deleteSongList(filterSongList!.id)">删除歌单</span></h2>
                 <p>
                     <button @click="addPlayList">播放全部</button>
                 </p>
@@ -159,8 +143,8 @@
                                 <img :src="`${music.img}`" alt="">
                             </div>
                             <div class="introduce">
-                                <p>{{ music.singers }}</p>
                                 <p>{{ music.name }}</p>
+                                <p>{{ music.singers }}</p>
                             </div>
                         </div>
                     </td>
@@ -210,6 +194,14 @@
                 flex: 7;
                 h2{
                     margin-top: 8.78px;
+                    span{
+                        float: right;
+                        font-size: 16px;
+                        margin-right: 30px;
+                        margin-top: 20px;
+                        cursor: pointer;
+                        color: red;
+                    }
                 }
                 p{
                     margin-top: 135px;

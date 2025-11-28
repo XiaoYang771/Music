@@ -18,6 +18,13 @@
     const SongListTitle = ref('')
     //定义现在选择的歌单列表
     const nowSongList = ref()
+    //定义现在选择的歌单列表
+    const MySongList = ref()
+    const songListOne = localStorage.getItem('MySongList')
+    const songListTwo = songListOne ? JSON.parse(songListOne) : []
+    const songListAll = ref(songListTwo)
+    const finnalySongList = ref(songListAll.value.concat(SongListStore.songLists))
+    
     //定义歌曲类型
     interface musictype {
             id:number
@@ -31,6 +38,28 @@
             isplay:boolean,
             lyric:string
     }
+     //定义歌曲类型
+    interface song {
+        id: number
+        name: string
+        singers: string
+        img: string
+        src: string
+        videoSrc:string
+        time: string
+        like: boolean
+        isplay: boolean,
+        lyric: string,
+    }
+    //定义歌单类型
+    interface typeOne {
+        id:number,
+        songListImg:string,
+        pageview?:number,
+        title:string,
+        content?:string,
+        song:song[]
+    }
 //方法
     //向播放列表中添加歌曲
     const addPlayList = (id:number) => {
@@ -39,7 +68,7 @@
         if(addMusic && !repeatMusic){
             MusicStore.playList.unshift(addMusic)
             MusicStore.isinitialization = true
-            MusicStore.playMusicByIndex(id)
+            MusicStore.playMusicById(id)
         }
     }
     //向我的喜欢列表中添加歌曲
@@ -50,7 +79,7 @@
             MusicStore.LikeMusicList.unshift(music)
         }
     }
-    //前往歌词页面
+    //前往MV页面
     const goVideo = (id:number) => {
         router.push({
            path: '/musicvideo',
@@ -67,13 +96,18 @@
     //向歌单列表中添加歌曲
     const addSongList = () => {
         if(SongListTitle.value !== ''){
-            nowSongList.value = SongListStore.songLists.find(songList => songList.title === SongListTitle.value)//当前歌单
+            nowSongList.value = finnalySongList.value.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
             const repeatMusic = nowSongList.value?.song.find((song:musictype) => song.id === nowMusic.value.id )
             if(!repeatMusic){
-                nowSongList.value?.song.push(nowMusic.value)//向当前歌单中添加歌曲
+                if(nowSongList.value.id <= 4){
+                    nowSongList.value.song.push(nowMusic.value)//向当前歌单中添加歌曲
+                }else{
+                    MySongList.value = SongListStore.createSongList.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
+                    MySongList.value.song.push(nowMusic.value)
+                }
             }
             showSongListFlag.value = false
-        }   
+        }
     }   
     //对歌曲列表进行监听并存入本地
     watch(
@@ -89,6 +123,16 @@
         () => {
         localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
         },{
+            deep:true
+        }
+    )
+    //对自己创建的歌单进行监听
+    watch(
+        SongListStore.createSongList,
+        () => {
+        localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
+        },
+        {
             deep:true
         }
     )
@@ -128,7 +172,7 @@
             <p>
                 <span>请您选择歌单</span>
                 <select name="" id="" v-model="SongListTitle">
-                    <option v-for="(SongList,index) in SongListStore.songLists" :value="`${SongList.title}`">{{ SongList.title }}</option>
+                    <option v-for="(SongList,index) in finnalySongList" :value="`${SongList.title}`">{{ SongList.title }}</option>
                 </select>
                 <button @click="addSongList" class="add">添加</button>
                 <button @click="showSongListFlag = false" class="remove">取消</button>

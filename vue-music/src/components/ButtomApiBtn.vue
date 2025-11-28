@@ -34,7 +34,7 @@
     //声明默认情况下循环的方式变量
     const loopIndex = ref(0)
 //方法
-    //定义隐藏播放按钮函数(简单)
+    //定义隐藏播放按钮函数
     const hiddenbuttom = () => {
         const buttomY = 70 //下滑的高度
         const buttom  = document.querySelector('.buttomNavApi') as HTMLDivElement
@@ -49,7 +49,7 @@
                ishidden.value = true
         }
     }
-    //点击前往歌词页(简单)
+    //点击前往歌词页
     const goMusicLrc = () => {
         router.push('/musiclrc')
     }
@@ -64,15 +64,15 @@
             soundHeight.value = 50
         }
     }
-    //显示音量条(简单)
+    //显示音量条
     const showSoundProgress = () => {
          isShowSoundProgress.value = true
     }
-    //隐藏音量条(简单)
+    //隐藏音量条
      const hiddenSoundProgress = () => {
         isShowSoundProgress.value = false
     }
-    //获得音量高度(简单)
+    //获得音量高度
     const getSoundHeight = (event:MouseEvent) => {
         sound.value = event.clientY - 595
         realsound.value = (100 - sound.value) / 100
@@ -86,19 +86,19 @@
     const switchSongList = () => {
         musicStore.isShowSongList = !musicStore.isShowSongList
     }
-    //默认情况下进度条前进的长度的函数(已解决)
+    //默认情况下进度条前进的长度的函数
     function getMusictime () {
         musicStore.audio.addEventListener('timeupdate',() => {
             goprogress.value = (musicStore.audio.currentTime / musicStore.audio.duration) * 400
         })
     }
     getMusictime()
-    //获得音乐时间位置的函数(已解决)
+    //获得音乐时间位置的函数
     const getMusicTimePosition = (event:MouseEvent) => {
         const left = 495.9921875
         MusicTimePosition.value = event.clientX - left
     }
-    //点击实现自定义歌曲时间(已解决)
+    //点击实现自定义歌曲时间
     const goMusicProgress = () => {
         if(musicStore.playList.length !== 0){
             const realtime = MusicTimePosition.value / 400 * musicStore.audio.duration
@@ -151,7 +151,7 @@
             }
         }
     }
-    //实现点击爱心向列表中添加歌曲(简单)
+    //实现点击爱心向列表中添加歌曲
     const addLikeMusic = (id:number) => {
         if(musicStore.playList.length !== 0){
             const filterMusic = ref(musicStore.MusicList.find(item => item.id === id))   //点击爱心找到那一首歌
@@ -170,21 +170,34 @@
     //清空播放列表
     const clearPlayList = () => {
         musicStore.playList = []
-        musicStore.playMusicByIndex(0)
+        musicStore.playMusicById(0)
     }
     //点击播放列表中的歌曲进行播放
     const playMusic = (id:number) => {
-        musicStore.playMusicByIndex(id)        
+        musicStore.playMusicById(id)        
     }
     //删除播放列表中单个歌曲
     const spliceMusic = (id:number) => {
-        if(musicStore.playList.length === 1 ){
-            clearPlayList()
-        }else{
+        if(musicStore.playList.length !== 0){
+            //定义要删除歌曲的下标
             const spliceMusicIndex = musicStore.playList.findIndex(music => music.id === id)
-            musicStore.playList =  musicStore.playList.filter(item => item.id !== id)
-            if(spliceMusicIndex === musicStore.currentIndex){
-                musicStore.playMusicByIndex(musicStore.playList[0]!.id)
+            //删除后重新渲染播放列表
+            musicStore.playList = musicStore.playList.filter(music =>  music.id !== id)
+            //对删除歌曲的索引与播放索引进行判断
+            if (spliceMusicIndex < musicStore.currentIndex) {   //删除的是当前播放歌曲“上方”的歌曲---所有歌曲的索引都必须减1
+                musicStore.currentIndex = musicStore.currentIndex - 1
+            }else if (spliceMusicIndex === musicStore.currentIndex) {   //删除的是当前播放的歌曲
+                let newPlayIndex = spliceMusicIndex
+                if (newPlayIndex >= musicStore.playList.length) {   //若是删除的歌曲是最后一首，则将重第一首开始播放
+                    if (musicStore.playList.length === 0) {
+                        clearPlayList()
+                        return;
+                    }
+                    newPlayIndex = 0
+                }
+            musicStore.currentIndex = newPlayIndex  //更新索引
+            musicStore.playMusicById(musicStore.playList[newPlayIndex]!.id) //进行传值播放
+            
             }
         }
     }

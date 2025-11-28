@@ -22,7 +22,8 @@ export const useSongListStore = defineStore('songlist',() => {
         pageview?:number,
         title:string,
         content?:string,
-        song:song[]
+        song:song[],
+        isDelete?:boolean
     }
     //声明歌单列表
     let songLists = reactive<typeOne[]>([

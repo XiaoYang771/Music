@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useSongListStore } from '@/stores/songList';
-import { watch } from 'vue';
+import { watch,ref } from 'vue';
 import { useRouter } from 'vue-router';
+import MusicButtom from './MusicButtom.vue';
 //引入路由器
 const router = useRouter()
 //引入歌单pinia的数据
 const songListStore = useSongListStore()
+const songListAll = ref(songListStore.songLists.concat(songListStore.createSongList))
 //点击查看歌单列表
 const checkMusicList = (songListID:number) => {
         router.push({
@@ -15,9 +17,6 @@ const checkMusicList = (songListID:number) => {
             }
     })
 }
-watch(songListStore.songLists,() => {
-    
-})
 </script>
 
 <template>
@@ -26,7 +25,7 @@ watch(songListStore.songLists,() => {
         <div class="musicList">
             <ul>
                 <li 
-                v-for="(SongList,index) in songListStore.songLists"
+                v-for="(SongList,index) in songListAll"
                 @click="checkMusicList(SongList.id)" 
                 :key="SongList.id"
                 >
