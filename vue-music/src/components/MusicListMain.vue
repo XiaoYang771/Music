@@ -59,6 +59,12 @@
     //向我的喜欢列表中添加歌曲
     const addLikeMusicList = (music:song) =>{
         music.like = true
+         for(let i = 0;i < musicStore.finallyMusic.length;i++) {
+            if(musicStore.finallyMusic[i]!.id === music.id) {
+                musicStore.finallyMusic[i]!.like = true
+                break;
+            }
+        }
         const repeatMusic = musicStore.LikeMusicList.some(item => item.id === music.id)
         if(!repeatMusic){
             musicStore.LikeMusicList.unshift(music)
@@ -72,7 +78,6 @@
         () => musicStore.LikeMusicList,
         () => {
             localStorage.setItem('MusicListLike',JSON.stringify(musicStore.LikeMusicList))
-            console.log(2345);
             
         },{
             deep: true
@@ -99,7 +104,6 @@
         () => songListStore.createSongList,
         (newVal) => {
             localStorage.setItem('MySongList', JSON.stringify(newVal))
-            router.push('/musicuser')
         },
         { deep: true }
     )

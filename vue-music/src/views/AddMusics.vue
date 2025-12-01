@@ -63,7 +63,7 @@
 //方法
     //向播放列表中添加歌曲
     const addPlayList = (id:number) => {
-        const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
+        const addMusic = MusicStore.finallyMusic.find(music => music.id === id)    //想要添加的歌曲
         const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
         if(addMusic && !repeatMusic){
             MusicStore.playList.unshift(addMusic)
@@ -74,6 +74,15 @@
     //向我的喜欢列表中添加歌曲
     const addLikeMusicList = (music:musictype) =>{
         music.like = true
+        for(let i = 0;i < SongListStore.songLists.length;i++) {
+            const currentSongList = SongListStore.songLists[i]
+            for(let j = 0; j < currentSongList!.song.length ; j++){
+                if(currentSongList!.song[j]!.id === music.id){
+                    currentSongList!.song[j]!.like = true
+                    break
+                }
+            } 
+        }
         const repeatMusic = MusicStore.LikeMusicList.some(item => item.id === music.id)
         if(!repeatMusic){
             MusicStore.LikeMusicList.unshift(music)
@@ -109,6 +118,14 @@
             showSongListFlag.value = false
         }
     }   
+     //对喜欢列表进行监听并存入本地  
+    watch(
+        () => MusicStore.LikeMusicList,
+        () => {
+            localStorage.setItem('MusicListLike',JSON.stringify(MusicStore.LikeMusicList))
+        },{
+            deep: true
+    })
     //对歌曲列表进行监听并存入本地
     watch(
         MusicStore.finallyMusic,
@@ -136,6 +153,7 @@
             deep:true
         }
     )
+    
 </script>
 
 <template>

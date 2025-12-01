@@ -73,22 +73,13 @@
         const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
         // 构建模糊匹配的正则（忽略大小写）
         const regex = new RegExp(escapedKeyword, 'i')
-        MusicSearch.value = MusicStore.MusicList.filter(music => regex.test(music.name))
+        MusicSearch.value = MusicStore.finallyMusic.filter(music => regex.test(music.name))
     }
     initView()
     //生命周期钩子，一旦数据进行改变就重新开始校验
     onBeforeUpdate(() => {
         initView()
     })
-    // //向播放列表中进行添加歌曲
-    // const addPlayList = (id:number) => {
-    //   const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
-    //     const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
-    //     if(addMusic && !repeatMusic){
-    //         MusicStore.playList.unshift(addMusic)
-    //         MusicStore.playMusicById(id)
-    //     }
-    // }
     //向喜欢列表中进行添加歌曲
     const addLikeMusicList = (music:musictype) =>{
         music.like = true
@@ -141,9 +132,18 @@
             showSongListFlag.value = false
         }
     }   
+     //对喜欢列表进行监听并存入本地  
+    watch(
+        () => MusicStore.LikeMusicList,
+        () => {
+            localStorage.setItem('MusicListLike',JSON.stringify(MusicStore.LikeMusicList))
+            
+        },{
+            deep: true
+    })
     //对歌曲列表进行监听并存入本地
     watch(
-        MusicStore.finallyMusic,
+        () => MusicStore.finallyMusic,
         () => {
             localStorage.setItem('MusicList',JSON.stringify(MusicStore.finallyMusic))
         },{
@@ -151,7 +151,7 @@
     })
        //对歌单列表进行监听
     watch(
-        SongListStore.songLists,
+        () => SongListStore.songLists,
         () => {
         localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
         },{
@@ -194,7 +194,7 @@
                 </td>
                 <td><img @click="goVideo(music.id)" src="/images/MV.png" alt=""></td>
                 <td><img @click="showSongList(music)" src="/images/jia.svg" alt=""></td>
-                <td><img src="../assets/icon/ai03.png" alt=""></td>
+                <td><img @click="addPlayList(music.id)" src="../assets/icon/ai03.png" alt=""></td>
             </tr>
         </table>
         <div v-else class="nothingMusic">

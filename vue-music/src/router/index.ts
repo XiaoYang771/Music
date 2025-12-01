@@ -1,15 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '@/views/Login.vue'
-import SongListCenter from '@/views/SongListCenter.vue'
-import HomePage from '@/views/HomePage.vue'
-import MusicLike from '@/views/MusicLike.vue'
-import AddMusics from '@/views/AddMusics.vue'
-import MusicLrc from '@/components/MusicLrc.vue'
-import MusicUser from '@/components/MusicUser.vue'
-import MusicVideo from '@/components/MusicVideo.vue'
-import MusicSearch from '@/components/MusicSearch.vue'
-import MusicListAll from '@/components/MusicListAll.vue'
-import MusicListMain from '@/components/MusicListMain.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -19,47 +8,47 @@ const router = createRouter({
     },
     {
       path:'/login',
-      component:Login
+      component: () => import('@/views/Login.vue')
     },
     {
       path:'/homemusic',
-      component:HomePage,  //首页
+      component: () => import('@/views/HomePage.vue')
     },
     {
       path: '/songlist',
-      component: SongListCenter //歌单主页
+      component: () => import('@/views/SongListCenter.vue')
     },
     {
       path: '/addmusic',
-      component: AddMusics    //歌曲列表
+      component: () => import('@/views/AddMusics.vue')
     },
     {
       path: '/musiclike',
-      component: MusicLike  //我的喜欢
+      component: () => import('@/views/MusicLike.vue')
     },
     {
       path:'/musiclrc',
-      component:MusicLrc  //歌词
+      component: () => import('@/components/MusicLrc.vue')
     },
     {
       path:'/musicuser',
-      component:MusicUser   //我的
+      component: () => import('@/components/MusicUser.vue')
     },
     {
       path:'/musicvideo',
-      component:MusicVideo  //MV
+      component: () => import('@/components/MusicVideo.vue')
     },
     {
       path:'/musicsearch',
-      component:MusicSearch   //歌曲搜索
+      component: () => import('@/components/MusicSearch.vue')
     },
     {
       path:'/musiclistall',
-      component:MusicListAll  //歌单中心
+      component: () => import('@/components/MusicListAll.vue')
     },
     {
       path:'/musiclistmain',
-      component:MusicListMain //歌单主页
+      component: () => import('@/components/MusicListMain.vue')
     }
   ],
 })

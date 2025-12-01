@@ -70,6 +70,7 @@ const checkMusicList = (songListID:number) => {
                         left: 60px;
                         bottom: 10px;
                         font-size: 18px;
+                        color: rgb(174, 243, 243);
                     }
                 }
             }

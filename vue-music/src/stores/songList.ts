@@ -282,10 +282,5 @@ export const useSongListStore = defineStore('songlist',() => {
     const initialSongLists = storeSongLists ? JSON.parse(storeSongLists) : songLists
     //再将songLists重新初始化
     songLists = reactive<typeOne[]>(initialSongLists)
-    // watch(createSongList, () => {
-    //     localStorage.setItem('my-songList', JSON.stringify(createSongList))
-    // }, {
-    //     deep: true
-    // })
     return { songLists,createSongList }
 })

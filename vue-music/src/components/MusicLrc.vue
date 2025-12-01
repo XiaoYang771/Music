@@ -15,11 +15,17 @@ const scrollY = computed(() => {
     const offset = centerY - currentLineY - (lineHeight / 2) // 减去行高一半，精准居中
     return offset;
 })
+const scrolly = computed(() => {
+
+})
 
 </script>
 
 <template>
     <div v-if="musicStore.playList.length !== 0" class="lrccontent" >
+        <div class="picture">
+            <img :src="`${musicStore.playList[musicStore.currentIndex]?.img}`" :class="{ 'rotating': musicStore.isPlaying }" alt="">
+        </div>
         <div :style="{ transform: `translateY(${scrollY}px)` }" class="lrclist" >
             <div 
                 v-for="(item, i) in musicStore.lyrics" 
@@ -38,16 +44,39 @@ const scrollY = computed(() => {
 </template>
 
 <style scoped lang="scss">
+//定义歌曲图片旋转效果
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.rotating {
+  animation: rotate 20s linear infinite; 
+}
     .lrccontent{
+        display: flex;
         height: 475px ;
         margin: 50px;
         overflow: hidden;
         position: relative;
         color: #fff;
-        font-size: 20px;
+        font-size: 16px;
+        .picture{
+            width: 300px;
+            height: 300px;
+            margin: 100px 0 0 20px;
+            img{
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+            }
+            
+        }
         .lrclist {
-            width: 100%;
-            height: 100%;
+            flex: 1;
             transition: transform 0.3s ease-out; /* 平滑滚动动画 */
             .musiclrc{
                 height:36px; /* 绑定 Pinia 中的行高 */

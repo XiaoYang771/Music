@@ -9,19 +9,6 @@
     const MusicStore = useMusicStore()
     //引入歌单pinia的数据
     const songListStore = useSongListStore()
-    //声明歌曲列表的属性类型(已掌握)
-    interface musictype {
-        id:number
-        name:string
-        singers:string
-        img:string
-        src:string
-        videoSrc?:string
-        time:string
-        like:boolean
-        isplay:boolean
-        lyric:string
-    }
     //定义轮播图列表图片类型
     interface navImgListType {
         id:number,
@@ -45,21 +32,21 @@
     //开始自动轮播(简单)
     const startbanner = () => {
         isshow.value = false    //左右箭头隐藏
-        if (timer) clearInterval(timer)//防止重复创建定时器(未掌握)
+        if (timer) clearInterval(timer)//防止重复创建定时器
         timer = setInterval(() => {
-        activeIndex.value = (activeIndex.value + 1) % navImgList.length
-        src.value = navImgList[activeIndex.value]!.src
+            activeIndex.value = (activeIndex.value + 1) % navImgList.length
+            src.value = navImgList[activeIndex.value]!.src
         }, 2000)
     }
-    //鼠标移入关闭清除定时器(简单)
+    //鼠标移入关闭清除定时器
     const stopbanner = () => {
         isshow.value = true
         if (timer) {
             clearInterval(timer)
-            timer = null    //(未掌握)
+            timer = null   //清除定时器 防止内存泄漏
         }
     }
-    //轮播图切换下一张图片(简单)
+    //轮播图切换下一张图片
     const DownImg = () => {
         activeIndex.value++
         if (activeIndex.value >= navImgList.length) {
@@ -67,7 +54,7 @@
         }
         src.value = navImgList[activeIndex.value]!.src
     }
-    //轮播图切换上一张图片(简单)
+    //轮播图切换上一张图片
     const UpImg = () => {
         activeIndex.value--
         if(activeIndex.value < 0){
@@ -75,23 +62,23 @@
         }
         src.value = navImgList[activeIndex.value]!.src
     }
-    //轮播图小圆点切换(简单)
+    //轮播图小圆点切换
     const SwitchImg = (index:number) =>{
         activeIndex.value = index
         src.value = navImgList[index]!.src
     }
-    //一进页面就自动轮播(简单)
+    //一进页面就自动轮播
     startbanner()
-    //组件销毁时清除定时器---防止内存泄漏(未掌握)
+    //组件销毁时清除定时器---防止内存泄漏
     onUnmounted(stopbanner)
 //最新歌曲模块
-    //点击歌取，向播放列表中添加(简单)
+    //点击歌取，向播放列表中添加
     const playMusic = (id:number) => {
         const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
         const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
         if(addMusic && !repeatMusic){
             MusicStore.playList.unshift(addMusic)
-            MusicStore.playMusicByIndex(id)
+            MusicStore.playMusicById(id)
         }
     }
     //点击查看歌单
@@ -101,24 +88,8 @@
             query:{
                 songListID:songListID
             }
-    })
-        // console.log(songList)
-        
+        })
     }
-    
-    // let rangeMusicLeft = ref<Array<musictype[]>>([])
-    // let rangeMusicRight = ref<Array<musictype[]>>([])
-    // let rangeIndexLeft:number[] = [] 
-    // let rangeIndexRight:number[] = [] 
-    // function getRangeMusic () {
-    //     for(let i = 0 ; i < 3 ; i++) {
-    //         let i = Math.floor(Math.random() * MusicStore.MusicList.length)
-    //         rangeIndexLeft.push(i)            
-    //     }
-    //     console.log(rangeIndexLeft)
-        
-    // }
-    // getRangeMusic()
 </script>
 
 <template>

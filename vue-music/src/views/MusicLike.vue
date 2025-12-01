@@ -65,6 +65,24 @@
         },{
         deep:true
     })
+      //对歌单列表进行监听
+    watch(
+        () => SongListStore.songLists,
+        () => {
+        localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
+        },{
+            deep:true
+        }
+    )
+    //对我的歌单进行监听
+    watch(
+        () => SongListStore.createSongList,
+        (newVal) => {
+            localStorage.setItem('MySongList', JSON.stringify(newVal))
+            // router.push('/musicuser')
+        },
+        { deep: true }
+    )
 </script>
 
 <template>
@@ -265,6 +283,9 @@
                 }
                 .nothingMusic{
                     height: 300px;
+                        &:hover{
+                            background-color: rgba(0,0,0,0) !important;  
+                        }
                     img{
                         width: 200px;
                         height: 200px;
