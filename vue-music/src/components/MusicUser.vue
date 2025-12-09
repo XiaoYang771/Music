@@ -1,20 +1,31 @@
 <script setup lang="ts">
-import { onMounted, ref,watch } from 'vue'
+import { ref,watch } from 'vue'
 import { useRouter } from 'vue-router';
 import { useMusicStore } from '@/stores/music';
 import { useSongListStore } from '@/stores/songList';
+//从歌单pinia中获取数据
 const SongListStore = useSongListStore()
+//从歌曲pinia中获取数据
 const MusicStore = useMusicStore()
+//定义路由器
 const router = useRouter()
+//定义是否为笔记页面
+const isCuttentNote = ref(false)
+//定义是否显示笔记
 const isShowNotes = ref(false)
+//获取当前文本框输入的文本内容
 const note = ref('')
+//定义是否显示创建歌单
 const isCreateSongList = ref(false)
+//定义是否允许创建
 let isAllowCreate = false
+//定义歌单的名字
 const SongListTitle = ref('')
+//定义歌单的图片
 const SongListImg = ref<string[]>([])
-const talkOne = localStorage.getItem('notes')
-const talkTwo = talkOne ? JSON.parse(talkOne) : []
-const talks = ref<Array<string>>(talkTwo)
+//定义存储笔记的数组列表
+const talks = ref<Array<string>>(JSON.parse(localStorage.getItem('notes') || '[]'))
+//创建并渲染笔记列表
 const createTalk = (talk:string) => {
     const div = document.createElement('div')
     div.innerHTML = talk
@@ -30,16 +41,18 @@ const createTalk = (talk:string) => {
     createTalkBox?.appendChild(div)
     note.value = ''
 } 
+//
 function getnotes () {
     talks.value.forEach(item => {
         createTalk(item)
     })
 }  
-
+//退出登录
 const clearUser = () => {
     localStorage.removeItem('nowMusicUser')
     location.href = '/login'
 }
+//查看歌单
 const checkMusicList = (songListID:number) => {
         router.push({
             path:'/musiclistmain',
@@ -48,6 +61,7 @@ const checkMusicList = (songListID:number) => {
             }
     })
 }
+//创建歌单
 const createSongList = () => {
     if(isAllowCreate) {
         SongListStore.createSongList.push(
@@ -60,36 +74,24 @@ const createSongList = () => {
         }
     )
     }
-    
     isAllowCreate = false
-    // SongListStore.createSongList.forEach(item => {
-    //     SongListStore.songLists.push(item)
-    // })
-    // console.log(SongListStore.songLists)
-    
     SongListTitle.value = ''
     SongListImg.value = []
     isCreateSongList.value = false
 }
-watch(talks,() => {
-    localStorage.setItem('notes',JSON.stringify(talks.value))
-},{
-    deep:true
-})
-watch(SongListStore.createSongList,() => {
-    localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
-},{
-    deep:true
-})
+//点击查看笔记
 const clickNote = () => {
+    if(isCuttentNote.value) return 
     isShowNotes.value = true  // 会把 视图更新 放入微队列
     Promise.resolve().then(getnotes)
+    isCuttentNote.value = true
 }
-
+//输入文本添加笔记
 const publishNote = (note:string) => {
     talks.value!.push(note)
     createTalk(note)
 }
+//获得创建歌单图片并进行判断
 const getSongListImg = (e:Event ) => {
     isAllowCreate = false
     const target = e.target as HTMLInputElement
@@ -111,6 +113,16 @@ const getSongListImg = (e:Event ) => {
         reader.readAsDataURL(flie)
         isAllowCreate = true
 }
+watch(talks,() => {
+    localStorage.setItem('notes',JSON.stringify(talks.value))
+},{
+    deep:true
+})
+watch(SongListStore.createSongList,() => {
+    localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
+},{
+    deep:true
+})
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { reactive,watch } from 'vue'
+import { reactive } from 'vue'
 
 export const useSongListStore = defineStore('songlist',() => {
     //定义歌曲类型

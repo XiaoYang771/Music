@@ -9,9 +9,7 @@ const router = useRouter()
 //定义切换登录注册的开关变量
 const toggleLoginflag = ref(false)
 //进行用户信息的持久化存储，默认从本地去读取数据
-const personOne = localStorage.getItem('musicUser')
-const personTwo = personOne ? JSON.parse(personOne) : []
-const person= ref<Array<personType>>(personTwo)
+const person = ref<Array<personType>>(JSON.parse(localStorage.getItem('musicUser') || '[]'))
 //定义用户用户名
 const username = ref('')
 //定义用户密码
@@ -109,7 +107,6 @@ const toggleLogin = () => {
 //登录
 const Login = () =>{
     const nowPerson = person.value.find(item => item.username === username.value && item.password === password.value)
-    // console.log(nowPerson)
     if(nowPerson){
         router.push('/homemusic')
         MusicStore.isLogin = false
@@ -126,6 +123,20 @@ watch(person.value,() => {
 
 <template>
     <div id="box">
+        <div class="disappear">
+            <span>欢</span>
+            <span>迎</span>
+            <span>来</span>
+            <span>到</span>
+            <br>
+            <span>小</span>
+            <span>杨</span>
+            <span>的</span>
+            <span>音</span>
+            <span>乐</span>
+            <span>网</span>
+            <span>站</span>
+        </div>
         <div v-if="toggleLoginflag" class="Sign">
             <h2>Sign up</h2>
             <form action="">
@@ -192,19 +203,44 @@ watch(person.value,() => {
 </template>
 
 <style scoped lang="scss">
+@keyframes an-1 {
+    50%{
+        transform: skew(-50deg) translateY(100%);
+        text-shadow: 0px 0px 50px;
+        opacity: 0;
+    }
+}
     #box{
         position: relative;
         width: 100%;
         height: 100%;
-        // background-color: #02375a;
-        background: url('/images/stat.jpg') no-repeat fixed center/cover;
+        background: #ffa17f;
+        background: linear-gradient(to right,#00223e,#ffa17f);
+        overflow: hidden;
+        .disappear{
+            position: absolute;
+            width: 500px;
+            height: 100px;
+            left: 0;
+            top: 300px;
+            text-align: center;
+            transform: translate(10%,10%);
+            span{
+                font-size: 50px;
+                color: #fff;
+                display: inline-block;
+                color: transparent;
+                text-shadow: 0px 0px 0px rgb(145, 240, 240);
+                animation: an-1 3s linear infinite;
+            }
+        }
         .Sign{
             position: absolute;
             top: 150px;
             left: 580px;
             width: 300px;
             height: 400px;
-            background-color: #005691;//#005691  355c7d
+            background-color: #005691;
             border: 5px solid #005691;
             box-shadow: 5px 5px 5px #0371c5 inset,5px 5px 5px #048bf1;
             text-align: center;

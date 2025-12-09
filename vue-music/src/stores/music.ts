@@ -4,7 +4,7 @@ import { ref,onMounted,watch } from 'vue'
 import { parseLrc } from '@/utils/lrcParser'
 
 export const useMusicStore = defineStore('music',() => {
-    //声明歌曲列表的属性类型(已掌握)
+    //声明歌曲列表的属性类型
     interface musictype {
         id:number
         name:string
@@ -23,7 +23,7 @@ export const useMusicStore = defineStore('music',() => {
         time: number,
         text: string
     }
-    //声明存储歌曲列表(ref类型声明未掌握)
+    //声明存储歌曲列表
     const MusicList = ref<Array<musictype>>([
         {
             id:0,

@@ -20,32 +20,18 @@
     const nowSongList = ref()
     //定义现在选择的歌单列表
     const MySongList = ref()
-    const songListOne = localStorage.getItem('MySongList')
-    const songListTwo = songListOne ? JSON.parse(songListOne) : []
-    const songListAll = ref(songListTwo)
-    const finnalySongList = ref(songListAll.value.concat(SongListStore.songLists))
-    
+    //获取我的歌单
+    const MysongList = ref(JSON.parse(localStorage.getItem('MySongList') || '[]'))
+    //定义所有歌单
+    const finnalySongList = ref(MysongList.value.concat(SongListStore.songLists))
     //定义歌曲类型
-    interface musictype {
-            id:number
-            name:string
-            singers:string
-            img:string
-            src:string
-            videoSrc?:string
-            time:string
-            like:boolean
-            isplay:boolean,
-            lyric:string
-    }
-     //定义歌曲类型
     interface song {
         id: number
         name: string
         singers: string
         img: string
         src: string
-        videoSrc:string
+        videoSrc?:string
         time: string
         like: boolean
         isplay: boolean,
@@ -72,7 +58,7 @@
         }
     }
     //向我的喜欢列表中添加歌曲
-    const addLikeMusicList = (music:musictype) =>{
+    const addLikeMusicList = (music:song) =>{
         music.like = true
         for(let i = 0;i < SongListStore.songLists.length;i++) {
             const currentSongList = SongListStore.songLists[i]
@@ -98,7 +84,7 @@
         })
     }
     //点击展开添加列表
-    const showSongList = (music:musictype) => {
+    const showSongList = (music:song) => {
         showSongListFlag.value = true
         nowMusic.value = music
     }
@@ -106,7 +92,7 @@
     const addSongList = () => {
         if(SongListTitle.value !== ''){
             nowSongList.value = finnalySongList.value.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
-            const repeatMusic = nowSongList.value?.song.find((song:musictype) => song.id === nowMusic.value.id )
+            const repeatMusic = nowSongList.value?.song.find((song:song) => song.id === nowMusic.value.id )
             if(!repeatMusic){
                 if(nowSongList.value.id <= 4){
                     nowSongList.value.song.push(nowMusic.value)//向当前歌单中添加歌曲
@@ -128,7 +114,7 @@
     })
     //对歌曲列表进行监听并存入本地
     watch(
-        MusicStore.finallyMusic,
+        () => MusicStore.finallyMusic,
         () => {
             localStorage.setItem('MusicList',JSON.stringify(MusicStore.finallyMusic))
         },{
@@ -136,7 +122,7 @@
     })
     //对歌单列表进行监听
     watch(
-        SongListStore.songLists,
+        () => SongListStore.songLists,
         () => {
         localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
         },{
@@ -145,7 +131,7 @@
     )
     //对自己创建的歌单进行监听
     watch(
-        SongListStore.createSongList,
+        () => SongListStore.createSongList,
         () => {
         localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
         },
@@ -153,7 +139,6 @@
             deep:true
         }
     )
-    
 </script>
 
 <template>

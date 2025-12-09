@@ -206,10 +206,10 @@
     }
     //监听并存入本地
     watch(
-        musicStore.LikeMusicList,
+        () => musicStore.LikeMusicList,
         () => {
-        localStorage.setItem('MusicListLike',JSON.stringify(musicStore.LikeMusicList))
-    },{
+            localStorage.setItem('MusicListLike',JSON.stringify(musicStore.LikeMusicList))
+        },{
         deep: true
     })  
     //对歌曲列表进行监听并存入本地
@@ -224,19 +224,18 @@
     watch(
         () => songListStore.songLists,
         () => {
-        localStorage.setItem('songListOne',JSON.stringify(songListStore.songLists))
+            localStorage.setItem('songListOne',JSON.stringify(songListStore.songLists))
         },{
             deep:true
-        }
-    )
+    })
     //对我的歌单进行监听
     watch(
         () => songListStore.createSongList,
         (newVal) => {
             localStorage.setItem('MySongList', JSON.stringify(newVal))
-        },
-        { deep: true }
-    )
+        },{ 
+            deep: true 
+    })
 </script>
 
 <template>

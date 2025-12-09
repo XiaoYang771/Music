@@ -29,7 +29,7 @@
     const activeIndex = ref(-1)
     //声明控制定时器的变量---方便销毁
     let timer: number | null = null
-    //开始自动轮播(简单)
+    //开始自动轮播
     const startbanner = () => {
         isshow.value = false    //左右箭头隐藏
         if (timer) clearInterval(timer)//防止重复创建定时器
@@ -49,6 +49,7 @@
     //轮播图切换下一张图片
     const DownImg = () => {
         activeIndex.value++
+        console.log(activeIndex.value)
         if (activeIndex.value >= navImgList.length) {
             activeIndex.value = 0
         }
@@ -136,7 +137,8 @@
             <div class="newmusiclist">
                 <ul>
                     <li 
-                    v-for="(song,index) in MusicStore.MusicList.slice(MusicStore.MusicList.length-6,MusicStore.MusicList.length-3)" 
+                    v-for="(song,index) in MusicStore.finallyMusic.slice(MusicStore.finallyMusic.length-6,
+                    MusicStore.finallyMusic.length-3)" 
                     @click="playMusic(song.id)"
                     :key="song.id"
                     >
@@ -159,7 +161,8 @@
                 </ul>
                 <ul>
                     <li 
-                    v-for="(song,index) in MusicStore.MusicList.slice(MusicStore.MusicList.length-3,MusicStore.MusicList.length)" 
+                    v-for="(song,index) in MusicStore.finallyMusic.slice(MusicStore.finallyMusic.length-3,
+                    MusicStore.finallyMusic.length)" 
                     @click="playMusic(song.id)"
                     :key="song.id"
                     >

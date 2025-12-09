@@ -72,6 +72,10 @@
     }
     const deleteSongList = (id:number) => {
         songListStore.createSongList = songListStore.createSongList.filter(songList => songList.id !== id)
+        router.push('/musicuser')
+    }
+    const back = () => {
+        history.back()
     }
     //对喜欢列表进行监听并存入本地  
     watch(
@@ -116,11 +120,13 @@
                 <img :src="`${filterSongList?.songListImg || '/images/zanwu.png'}`" alt="">
             </div>
             <div class="introduceRight">
-                <h2>{{ filterSongList?.title }} <span v-if="filterSongList?.isDelete" @click="deleteSongList(filterSongList!.id)">删除歌单</span></h2>
+                <h2>{{ filterSongList?.title }}</h2>
                 <p>
                     <button @click="addPlayList">播放全部</button>
+                    <span v-if="filterSongList?.isDelete" @click="deleteSongList(filterSongList!.id)">删除歌单</span>
                 </p>
             </div>
+            <img @click="back" class="pve" src="/images/fanhui.png" alt="">
         </div>
         <div class="likeList">
             <ul>
@@ -157,11 +163,12 @@
                          <img 
                             @click="addLikeMusicList(music)" 
                             :src="`${music.like || false ? '/images/hongaixin.svg':'/images/aixin.png'}`" 
+                            class="islike"
                             alt="喜欢"
                         >
                     </td>
                     <td>{{ music.time }}</td>
-                    <td><img @click="spliceMusic(music.id)" src="/images/chacha.png" alt=""></td>
+                    <td><img @click="spliceMusic(music.id)" src="/images/chacha.png" alt="" class="splice"></td>
                 </tr>
                 <tr v-else class="nothingMusic">
                     <td>
@@ -198,14 +205,7 @@
                 flex: 7;
                 h2{
                     margin-top: 8.78px;
-                    span{
-                        float: right;
-                        font-size: 16px;
-                        margin-right: 30px;
-                        margin-top: 20px;
-                        cursor: pointer;
-                        color: red;
-                    }
+                   
                 }
                 p{
                     margin-top: 135px;
@@ -218,7 +218,23 @@
                         cursor: pointer;
                         background-color: rgb(252, 81, 81);
                     }
+                     span{
+                        float: right;
+                        font-size: 16px;
+                        margin-right: 30px;
+                        margin-top: 20px;
+                        cursor: pointer;
+                        color: red;
+                    }
                 }
+            }
+            .pve{
+                position: absolute;
+                right: 30px;
+                top: 70px;
+                width: 50px;
+                height: 50px;
+                cursor: pointer;
             }
         }
         .likeList{
@@ -309,7 +325,7 @@
                     :nth-child(4){
                         flex: 1;
                         text-align: center;
-                        img{
+                        .islike{
                             width: 40px;
                             height: 40px;
                             margin-top: 5px;
@@ -324,7 +340,7 @@
                         flex: 1;
                         text-align: center;
                     }
-                    img{
+                    .splice{
                         width: 25px;
                         height: 25px;
                         margin-top: 10px;

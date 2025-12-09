@@ -7,9 +7,7 @@
     //引入歌单pinia的数据
     const SongListStore = useSongListStore()
     //定义响应式筛选后歌取列表的变量
-    const stepOneLike = localStorage.getItem('MusicListLike') || '[]'
-    const stepTwoLike = JSON.parse(stepOneLike)
-    const filterMusicLike = ref(stepTwoLike)
+    const filterMusicLike = ref(JSON.parse(localStorage.getItem('MusicListLike') || '[]'))
     //点击向播放列表中添加歌曲
     const addPlayList = () => {
         while(musicStore.playList[0]) {
@@ -69,20 +67,18 @@
     watch(
         () => SongListStore.songLists,
         () => {
-        localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
+            localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
         },{
             deep:true
-        }
-    )
+    })
     //对我的歌单进行监听
     watch(
         () => SongListStore.createSongList,
         (newVal) => {
             localStorage.setItem('MySongList', JSON.stringify(newVal))
-            // router.push('/musicuser')
-        },
-        { deep: true }
-    )
+        },{
+            deep: true 
+    })
 </script>
 
 <template>

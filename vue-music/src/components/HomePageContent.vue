@@ -5,7 +5,7 @@ import HomeMusicNav from './HomeMusicNav.vue';
 
 <template>
     <div class="content">
-        <video class="bg-video" autoplay muted loop playsinline>
+        <video class="bg-video" autoplay muted loop playsinline loading="lazy">
             <source src="/video/bg.mp4" type="video/mp4">
         </video>
         <div class="contenttext">

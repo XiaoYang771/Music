@@ -13,13 +13,8 @@ const MusicStore = useMusicStore()
   </div>
   <div v-else class="bg-container" :style="{backgroundColor:MusicStore.subjectColor}">
     <div class="main" @click="MusicStore.isShowSongList = false">
-      <!-- <div v-if="MusicStore.nowMusicUser.length === 1" class="login">
-        <Login></Login>
-      </div> -->
-      <!-- <div v-else id="main"> -->
         <HomePageAside></HomePageAside>
         <HomePageContent></HomePageContent>
-      <!-- </div> -->
     </div>
     <div class="footer">
         <ButtomApiBtn></ButtomApiBtn>
@@ -29,10 +24,17 @@ const MusicStore = useMusicStore()
 </template>
 
 <style lang="scss">
+  :root{
+    --typeSpeed:4s;
+    --strLength:11;
+    --bg-color:#222;
+    --font-color:#fff;
+  }
   *{
     margin: 0;
     padding: 0;
     user-select: none;
+  }
   .login{
     width: 100%;
     height: 765px;
@@ -57,10 +59,6 @@ const MusicStore = useMusicStore()
         border-radius: 20px;
         background-color: rgb(52, 49, 49);
       }
-      // .login {
-      //   width: 100%;
-      //   height: 100%;
-      // }
     }
   }
   .footer{
@@ -70,5 +68,4 @@ const MusicStore = useMusicStore()
       bottom: 0;
       z-index: 10;
     }
-  }
 </style>
