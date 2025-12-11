@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { reactive } from 'vue'
+import { reactive,watch } from 'vue'
 
 export const useSongListStore = defineStore('songlist',() => {
     //定义歌曲类型
@@ -273,14 +273,27 @@ export const useSongListStore = defineStore('songlist',() => {
             ]
         },
     ])
-    const createSongListOne = localStorage.getItem('MySongList')
-    const createSongListTwo = createSongListOne ? JSON.parse(createSongListOne) : []
-    const createSongList = reactive<typeOne[]>(createSongListTwo)
+    //创建歌单列表
+    const createSongList = reactive<typeOne[]>(JSON.parse(localStorage.getItem('MySongList') || '[]'))
     //先从localStorage读取存储的歌单数据
     const storeSongLists = localStorage.getItem('songListOne')
-    //解析数据
-    const initialSongLists = storeSongLists ? JSON.parse(storeSongLists) : songLists
     //再将songLists重新初始化
-    songLists = reactive<typeOne[]>(initialSongLists)
+    songLists = reactive<typeOne[]>(storeSongLists ? JSON.parse(storeSongLists) : songLists)
+    //对歌单列表进行监听
+    watch(
+        () => songLists,
+        () => {
+            localStorage.setItem('songListOne', JSON.stringify(songLists))
+        }, {
+        deep: true
+    })
+    //对我的歌单进行监听
+    watch(
+        () => createSongList,
+        (newVal) => {
+            localStorage.setItem('MySongList', JSON.stringify(newVal))
+        }, {
+        deep: true
+    })
     return { songLists,createSongList }
 })

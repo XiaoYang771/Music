@@ -1,24 +1,20 @@
 <script setup lang="ts">
-import { useMusicStore } from '@/stores/music'
+import { useMusicStore } from '@/stores/musicapi'
 import { computed }  from 'vue'
 //引入歌曲pinia的数据
 const musicStore = useMusicStore()
-// 关键：通过 computed 实时监听 Pinia 中的 currentLrcIndex，计算滚动距离
+//通过 computed 实时监听 Pinia 中的 currentLrcIndex，计算滚动距离
 const scrollY = computed(() => {
-    // 如果还没有歌词索引（未播放），不滚动
+    //如果还没有歌词索引（未播放），不滚动
     if (musicStore.currentLrcIndex === -1) return 0
       const lineHeight = 36
       const containerHeight = 500
-    // 计算逻辑：让当前歌词居中显示
+    //让当前歌词居中显示
     const centerY = containerHeight / 2 // 容器中心点
     const currentLineY = musicStore.currentLrcIndex * lineHeight // 当前歌词的 Y 坐标
     const offset = centerY - currentLineY - (lineHeight / 2) // 减去行高一半，精准居中
     return offset;
 })
-const scrolly = computed(() => {
-
-})
-
 </script>
 
 <template>

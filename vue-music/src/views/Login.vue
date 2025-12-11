@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref,watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMusicStore } from '@/stores/music'
+import { useMusicStore } from '@/stores/musicapi'
 //引入歌曲 pinia 的的数据
 const MusicStore = useMusicStore()
 //引入路由器
@@ -175,7 +175,7 @@ watch(person.value,() => {
             </form>
             <p>Already a member?<a href="#" @click="toggleLogin"> Log in</a></p>
         </div>
-        <div v-else class="Sign">
+        <div v-if="!toggleLoginflag" class="Sign">
             <h2>Login</h2>
             <form action="">
                 <div>
@@ -274,7 +274,6 @@ watch(person.value,() => {
                         }
                     }
                     input{
-                        // width: 200px;
                         height: 30px;
                         flex: 8.5;
                         border: 0;

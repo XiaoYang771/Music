@@ -57,7 +57,7 @@ router.beforeEach((to, from, next) => {
   // 如果没有token，且不是前往登录页，则跳转到登录页
   if (!token && to.path !== '/login') {
     location.href = '/login'
-  } else if(token && to.path === '/login'){
+  } else if(token && to.path === '/login'){ 
     // next() // 有token或前往登录页，正常跳转
     next('/homemusic')
   }else{

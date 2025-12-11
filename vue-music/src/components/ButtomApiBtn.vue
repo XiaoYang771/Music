@@ -1,14 +1,24 @@
 <script setup lang="ts">
-    import { useMusicStore } from '@/stores/music'
-    import { useSongListStore } from '@/stores/songList'
-    import { ref,watch } from 'vue'
+    import { useMusicStore } from '@/stores/musicapi'
+    import { ref } from 'vue'
     import { useRouter } from 'vue-router'
+    //定义歌曲类型
+    interface song {
+        id: number
+        name: string
+        singers: string
+        img: string
+        src: string
+        videoSrc?:string
+        time: string
+        like: boolean
+        isplay: boolean,
+        lyric: string,
+    }
     //引入路由器
     const router = useRouter()
     //引入歌曲pinia的数据
     const musicStore = useMusicStore()
-    //引入歌单pinia的数据
-    const songListStore = useSongListStore()
 //数据
     //声明是否下拉隐藏播放按钮变量
     const ishidden = ref(true)
@@ -154,22 +164,6 @@
             }
         }
     }
-    //实现点击爱心向列表中添加歌曲
-    const addLikeMusic = (id:number) => {
-        if(musicStore.playList.length !== 0){
-            const filterMusic = ref(musicStore.finallyMusic.find(item => item.id === id))   //点击爱心找到那一首歌
-            filterMusic.value!.like = true    //将那首歌的like 变为true 方便后面更改爱心图片
-            //判断是否能找到那一首歌 排除null的情况 一旦有null存在 就无法unshift
-            if (filterMusic) {
-                //some检测数组中是否重复，返回布尔值
-                const isclude = musicStore.LikeMusicList.some(item => item.id === filterMusic.value!.id)
-                //如果不重复，就向数组里面添加
-                if (!isclude) {
-                    musicStore.LikeMusicList.unshift(filterMusic.value!)
-                } 
-            }
-        }
-    }
     //清空播放列表
     const clearPlayList = () => {
         musicStore.playList = []
@@ -204,38 +198,6 @@
             }
         }
     }
-    //监听并存入本地
-    watch(
-        () => musicStore.LikeMusicList,
-        () => {
-            localStorage.setItem('MusicListLike',JSON.stringify(musicStore.LikeMusicList))
-        },{
-        deep: true
-    })  
-    //对歌曲列表进行监听并存入本地
-    watch(
-        () => musicStore.finallyMusic,
-        () => {
-            localStorage.setItem('MusicList',JSON.stringify(musicStore.finallyMusic))
-        },{
-        deep:true
-    })
-    //对歌单列表进行监听
-    watch(
-        () => songListStore.songLists,
-        () => {
-            localStorage.setItem('songListOne',JSON.stringify(songListStore.songLists))
-        },{
-            deep:true
-    })
-    //对我的歌单进行监听
-    watch(
-        () => songListStore.createSongList,
-        (newVal) => {
-            localStorage.setItem('MySongList', JSON.stringify(newVal))
-        },{ 
-            deep: true 
-    })
 </script>
 
 <template>
@@ -260,7 +222,7 @@
             <div class="progerssApi">
             <a>
                 <img 
-                @click="addLikeMusic(musicStore.playList[musicStore.currentIndex]?.id as number)" 
+                @click="musicStore.switchLikeMusic(musicStore.playList[musicStore.currentIndex] as song)" 
                 :src="`${musicStore.playList[musicStore.currentIndex]?.like || false ? '/images/hongaixin.svg':'/images/aixin.png'}`" 
                 alt="喜欢"
                 >

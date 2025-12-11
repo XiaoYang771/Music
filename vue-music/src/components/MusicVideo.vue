@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref,watch } from 'vue'
 import { useRoute,useRouter } from 'vue-router';
-import { useMusicStore } from '@/stores/music';
+import { useStateMusic } from '@/stores/music';
 //引入歌曲pinia的数据
-const MusicStore = useMusicStore()
+const StateMusic = useStateMusic()
 //定义歌曲类型
 interface musictype {
         id:number
@@ -25,18 +25,18 @@ const router = useRouter()
 //定义路由传过来的ID变量
 const ID = ref(Number(route.query.id))
 //定义当前的MV歌曲
-let nowMusicVideo = ref(MusicStore.MusicList.find(music => music.id === ID.value))
+let nowMusicVideo = ref(StateMusic.MusicList.find(music => music.id === ID.value))
 //定义存储随机数MV的数组列表
 const RangeMusicVideo = ref<Array<musictype>>([])
 //定义随机数数组，存放随机数
 let RangeArray:number[] = []
 //获得随机数并添加到随机数组中
 function getRange() {
-  for(let i = 0 ; i < MusicStore.MusicList.length ; i++){
-    const rangeMusic = Math.floor(Math.random() * MusicStore.MusicList.length)
-    if(!RangeArray.includes(rangeMusic) && RangeArray.length < 4 && MusicStore.MusicList[rangeMusic]!.videoSrc){
+  for(let i = 0 ; i < StateMusic.MusicList.length ; i++){
+    const rangeMusic = Math.floor(Math.random() * StateMusic.MusicList.length)
+    if(!RangeArray.includes(rangeMusic) && RangeArray.length < 4 && StateMusic.MusicList[rangeMusic]!.videoSrc){
         RangeArray.push(rangeMusic)
-        MusicStore.MusicList.forEach((music:musictype) => {
+        StateMusic.MusicList.forEach((music:musictype) => {
             if(music.id === rangeMusic){
                 RangeMusicVideo.value.unshift(music)
             }
@@ -51,6 +51,7 @@ const newGetRange = () => {
     RangeArray = []
     getRange()
 }
+//前往MV
 const switchVideo = (id:number) => {
     router.push({
         path:'musicvideo',
@@ -59,11 +60,17 @@ const switchVideo = (id:number) => {
         }
     })
 }
+//回退上一页
+const back = () => {
+    history.back()
+}
+//对传过来的MV的id进行监听
 watch(() => route.query.VideoId, (newId) => {
   ID.value = Number(newId)
 })
+//对路由传过来的ID变量进行监听
 watch(() => ID.value, (newId) => {
-  nowMusicVideo.value = MusicStore.MusicList.find(music => music.id === newId)
+  nowMusicVideo.value = StateMusic.MusicList.find(music => music.id === newId)
 })
 </script>
 
@@ -77,6 +84,7 @@ watch(() => ID.value, (newId) => {
                 <span>该歌曲暂无MV哦~</span><br>
                 <img src="/images/zanwu.png" alt="">
             </p>
+             <img @click="back" class="pve" src="/images/fanhui.png" alt="">
         </div>
         <div class="otherVideoBox">
             <h3>其他MV<span @click="newGetRange">换一批</span></h3>
@@ -124,6 +132,14 @@ watch(() => ID.value, (newId) => {
                 img{
                     margin-top: 20px;
                 }
+            }
+             .pve{
+                position: absolute;
+                right: 30px;
+                top: 0px;
+                width: 50px;
+                height: 50px;
+                cursor: pointer;
             }
         }
         .otherVideoBox{

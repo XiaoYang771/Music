@@ -144,7 +144,7 @@
 
             }
             .bg1{
-                top: 50px;
+                top: 40px;
                 left: 50px;
             }
             .bg2{

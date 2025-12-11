@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import { useMusicStore } from '@/stores/music'
+    import { useMusicStore } from '@/stores/musicapi'
     import { useSongListStore } from '@/stores/songList'
-    import { ref,watch } from 'vue'
+    import { ref } from 'vue'
     import { useRouter } from 'vue-router'
 //数据
     //引入路由器
@@ -46,34 +46,6 @@
         content?:string,
         song:song[]
     }
-//方法
-    //向播放列表中添加歌曲
-    const addPlayList = (id:number) => {
-        const addMusic = MusicStore.finallyMusic.find(music => music.id === id)    //想要添加的歌曲
-        const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
-        if(addMusic && !repeatMusic){
-            MusicStore.playList.unshift(addMusic)
-            MusicStore.isinitialization = true
-            MusicStore.playMusicById(id)
-        }
-    }
-    //向我的喜欢列表中添加歌曲
-    const addLikeMusicList = (music:song) =>{
-        music.like = true
-        for(let i = 0;i < SongListStore.songLists.length;i++) {
-            const currentSongList = SongListStore.songLists[i]
-            for(let j = 0; j < currentSongList!.song.length ; j++){
-                if(currentSongList!.song[j]!.id === music.id){
-                    currentSongList!.song[j]!.like = true
-                    break
-                }
-            } 
-        }
-        const repeatMusic = MusicStore.LikeMusicList.some(item => item.id === music.id)
-        if(!repeatMusic){
-            MusicStore.LikeMusicList.unshift(music)
-        }
-    }
     //前往MV页面
     const goVideo = (id:number) => {
         router.push({
@@ -83,7 +55,7 @@
            }
         })
     }
-    //点击展开添加列表
+    //点击展开添加歌单列表
     const showSongList = (music:song) => {
         showSongListFlag.value = true
         nowMusic.value = music
@@ -104,41 +76,6 @@
             showSongListFlag.value = false
         }
     }   
-     //对喜欢列表进行监听并存入本地  
-    watch(
-        () => MusicStore.LikeMusicList,
-        () => {
-            localStorage.setItem('MusicListLike',JSON.stringify(MusicStore.LikeMusicList))
-        },{
-            deep: true
-    })
-    //对歌曲列表进行监听并存入本地
-    watch(
-        () => MusicStore.finallyMusic,
-        () => {
-            localStorage.setItem('MusicList',JSON.stringify(MusicStore.finallyMusic))
-        },{
-        deep:true
-    })
-    //对歌单列表进行监听
-    watch(
-        () => SongListStore.songLists,
-        () => {
-        localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
-        },{
-            deep:true
-        }
-    )
-    //对自己创建的歌单进行监听
-    watch(
-        () => SongListStore.createSongList,
-        () => {
-        localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
-        },
-        {
-            deep:true
-        }
-    )
 </script>
 
 <template>
@@ -147,25 +84,25 @@
             <tr 
             v-for="(music,index) in MusicStore.finallyMusic" 
             :key="music.id">
-                <td @click="addPlayList(music.id)">
+                <td @click="MusicStore.addPlayList(music.id)">
                     <img :src="`${music.img}`" alt="">
                 </td>
-                <td @click="addPlayList(music.id)">
+                <td @click="MusicStore.addPlayList(music.id)">
                     {{ music.name }}
                 </td>
-                <td @click="addPlayList(music.id)">
+                <td @click="MusicStore.addPlayList(music.id)">
                     {{ music.singers }}
                 </td>
                 <td>
                     <img 
-                    @click="addLikeMusicList(music)" 
+                    @click="MusicStore.switchLikeMusic(music)" 
                     :src="`${music.like || false ? '/images/hongaixin.svg':'/images/aixin.png'}`" 
                     alt="喜欢"
                     >
                 </td>
                 <td><img @click="goVideo(music.id)" src="/images/MV.png" alt=""></td>
                 <td><img @click="showSongList(music)" src="/images/jia.svg" alt=""></td>
-                <td @click="addPlayList(music.id)"><img src="../assets/icon/ai03.png" alt=""></td>
+                <td @click="MusicStore.addPlayList(music.id)"><img src="../assets/icon/ai03.png" alt=""></td>
             </tr>
         </table>
     </div>

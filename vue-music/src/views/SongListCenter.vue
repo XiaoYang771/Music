@@ -1,10 +1,7 @@
 <script setup lang="ts">
     import { ref,onUnmounted } from 'vue'
-    import { useMusicStore } from '@/stores/music'
+    import { useMusicStore } from '@/stores/musicapi'
     import { useSongListStore } from '@/stores/songList';
-    import { useRouter } from 'vue-router'
-    //引入路由器
-    const router = useRouter()
     //引入歌曲pinia的数据
     const MusicStore = useMusicStore()
     //引入歌单pinia的数据
@@ -20,7 +17,6 @@
         {id:1,src:"/images/banner11.jpg"},
         {id:2,src:"/images/banner12.jpg"},
     ]
-//轮播图模块
     //声明响应式的src路径，实时取到图片列表里面的值并放到模板中渲染
     let src = ref('')
     //控制轮播图中左右箭头的隐藏，默认隐藏
@@ -49,7 +45,6 @@
     //轮播图切换下一张图片
     const DownImg = () => {
         activeIndex.value++
-        console.log(activeIndex.value)
         if (activeIndex.value >= navImgList.length) {
             activeIndex.value = 0
         }
@@ -72,25 +67,6 @@
     startbanner()
     //组件销毁时清除定时器---防止内存泄漏
     onUnmounted(stopbanner)
-//最新歌曲模块
-    //点击歌取，向播放列表中添加
-    const playMusic = (id:number) => {
-        const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
-        const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
-        if(addMusic && !repeatMusic){
-            MusicStore.playList.unshift(addMusic)
-            MusicStore.playMusicById(id)
-        }
-    }
-    //点击查看歌单
-    const checkMusicList = (songListID:number) => {
-        router.push({
-            path:'/musiclistmain',
-            query:{
-                songListID:songListID
-            }
-        })
-    }
 </script>
 
 <template>
@@ -117,7 +93,7 @@
                 <ul>
                     <li 
                     v-for="(songList,index) in songListStore.songLists" 
-                    @click="checkMusicList(songList.id)"
+                    @click="MusicStore.checkMusicList(songList.id)"
                     :key="index"
                     :style="{
                         backgroundImage:`url(${songList.songListImg})`,
@@ -139,7 +115,7 @@
                     <li 
                     v-for="(song,index) in MusicStore.finallyMusic.slice(MusicStore.finallyMusic.length-6,
                     MusicStore.finallyMusic.length-3)" 
-                    @click="playMusic(song.id)"
+                    @click="MusicStore.addPlayList(song.id)"
                     :key="song.id"
                     >
                         <a href="#">
@@ -163,7 +139,7 @@
                     <li 
                     v-for="(song,index) in MusicStore.finallyMusic.slice(MusicStore.finallyMusic.length-3,
                     MusicStore.finallyMusic.length)" 
-                    @click="playMusic(song.id)"
+                    @click="MusicStore.addPlayList(song.id)"
                     :key="song.id"
                     >
                         <a href="#">

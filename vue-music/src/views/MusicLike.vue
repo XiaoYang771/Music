@@ -1,25 +1,13 @@
 <script setup lang="ts">
-    import { useMusicStore } from '@/stores/music';
+    import { useMusicStore } from '@/stores/musicapi';
     import { useSongListStore } from '@/stores/songList';
-    import { ref,watch } from 'vue';
+    import { ref } from 'vue';
     //引入歌曲pinia的数据
     const musicStore = useMusicStore()
     //引入歌单pinia的数据
     const SongListStore = useSongListStore()
     //定义响应式筛选后歌取列表的变量
     const filterMusicLike = ref(JSON.parse(localStorage.getItem('MusicListLike') || '[]'))
-    //点击向播放列表中添加歌曲
-    const addPlayList = () => {
-        while(musicStore.playList[0]) {
-            musicStore.playList.shift()
-        }
-        for(const item of musicStore.LikeMusicList) {
-            musicStore.playList.push(item)
-        }
-        musicStore.playMusicById(musicStore.playList[0]!.id)
-        musicStore.isinitialization = true
-        musicStore.finallyMusicIndex = musicStore.playList.length - 1
-    }
     //点击清除喜欢的歌曲
     const clearMusicLike = (id:number) => {
         //首先先排除掉去除的那一首歌
@@ -47,38 +35,6 @@
                 musicStore.LikeMusicList.push(item)
             }
     } 
-    //对喜欢列表进行监听并存入本地  
-    watch(
-        () => musicStore.LikeMusicList,
-        () => {
-            localStorage.setItem('MusicListLike',JSON.stringify(musicStore.LikeMusicList))
-        },{
-            deep: true
-    })
-    //对歌曲列表进行监听并存入本地
-    watch(
-        () => musicStore.finallyMusic,
-        () => {
-            localStorage.setItem('MusicList',JSON.stringify(musicStore.finallyMusic))
-        },{
-        deep:true
-    })
-      //对歌单列表进行监听
-    watch(
-        () => SongListStore.songLists,
-        () => {
-            localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
-        },{
-            deep:true
-    })
-    //对我的歌单进行监听
-    watch(
-        () => SongListStore.createSongList,
-        (newVal) => {
-            localStorage.setItem('MySongList', JSON.stringify(newVal))
-        },{
-            deep: true 
-    })
 </script>
 
 <template>
@@ -90,7 +46,7 @@
             <div class="introduceRight">
                 <h2>我喜欢的音乐</h2>
                 <p>
-                    <button @click="addPlayList">播放全部</button>
+                    <button @click="musicStore.addPlayListAll(musicStore.LikeMusicList)">播放全部</button>
                 </p>
             </div>
         </div>

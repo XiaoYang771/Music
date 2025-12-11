@@ -1,22 +1,13 @@
 <script setup lang="ts">
 import { useSongListStore } from '@/stores/songList';
-import { watch,ref } from 'vue';
-import { useRouter } from 'vue-router';
-import MusicButtom from './MusicButtom.vue';
-//引入路由器
-const router = useRouter()
+import { useMusicStore } from '@/stores/musicapi';
+import { ref } from 'vue';
 //引入歌单pinia的数据
 const songListStore = useSongListStore()
+//引入歌曲api的数据与方法
+const MusicStore = useMusicStore()
+//获得总歌单
 const songListAll = ref(songListStore.songLists.concat(songListStore.createSongList))
-//点击查看歌单列表
-const checkMusicList = (songListID:number) => {
-        router.push({
-            path:'/musiclistmain',
-            query:{
-                songListID:songListID
-            }
-    })
-}
 </script>
 
 <template>
@@ -26,7 +17,7 @@ const checkMusicList = (songListID:number) => {
             <ul>
                 <li 
                 v-for="(SongList,index) in songListAll"
-                @click="checkMusicList(SongList.id)" 
+                @click="MusicStore.checkMusicList(SongList.id)" 
                 :key="SongList.id"
                 >
                     <img :src="`${SongList.songListImg}`" alt="">

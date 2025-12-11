@@ -1,10 +1,32 @@
 <script setup lang="ts">
-    import { useMusicStore } from '@/stores/music'
-    import { watch,ref,onBeforeUpdate } from 'vue'
+    import { useMusicStore } from '@/stores/musicapi'
+    import { ref,onBeforeUpdate } from 'vue'
     import { useRouter } from 'vue-router'
     import { useRoute } from 'vue-router'
     import { useSongListStore } from '@/stores/songList'
-//数据
+    //定义歌曲类型
+    interface musictype {
+        id:number
+        name:string
+        singers:string
+        img:string
+        src:string
+        videoSrc?:string
+        time:string
+        like:boolean
+        isplay:boolean,
+        lyric:string
+    }
+    //定义歌单类型
+    interface typeOne {
+        id:number,
+        songListImg:string,
+        pageview?:number,
+        title:string,
+        content?:string,
+        song:musictype[],
+        isDelete?:boolean
+    }
     //引入路由
     const route = useRoute() 
     //引入路由器
@@ -17,55 +39,18 @@
     const showSongListFlag = ref(false)
     //定义现在想要添加的歌曲
     const nowMusic = ref()
-     //定义现在选择的歌单列表
+    //定义现在选择的歌单列表
     const nowSongList = ref()
     //定义现在选择的歌单列表
     const MySongList = ref()
-     //定义歌单列表的标题
+    //定义歌单列表的标题
     const SongListTitle = ref('')
-    const songListOne = localStorage.getItem('MySongList')
-    const songListTwo = songListOne ? JSON.parse(songListOne) : []
-    const songListAll = ref(songListTwo)
-    const finnalySongList = ref(songListAll.value.concat(SongListStore.songLists))
+    //从本地拿到我的歌单
+    const mySongList = ref(JSON.parse(localStorage.getItem('MySongList') || '[]'))
+    //再和歌单列表中的歌单进行拼接，得到总歌单
+    const finnalySongList = ref(mySongList.value.concat(SongListStore.songLists))
     //声明搜索列表（搜索的歌曲都应该存在歌曲列表中）
     const MusicSearch = ref<musictype[]>([])
-    //定义歌曲类型
-    interface musictype {
-            id:number
-            name:string
-            singers:string
-            img:string
-            src:string
-            videoSrc?:string
-            time:string
-            like:boolean
-            isplay:boolean,
-            lyric:string
-    }
-     //定义歌曲类型
-    interface song {
-        id: number
-        name: string
-        singers: string
-        img: string
-        src: string
-        videoSrc:string
-        time: string
-        like: boolean
-        isplay: boolean,
-        lyric: string,
-    }
-    //定义歌单类型
-    interface typeOne {
-        id:number,
-        songListImg:string,
-        pageview?:number,
-        title:string,
-        content?:string,
-        song:song[],
-        isDelete?:boolean
-    }
-//方法
     //校验搜索内容与歌曲进行匹配
     const initView = () => {
         // 从路由查询参数中获取关键词，并转义正则特殊字符
@@ -80,17 +65,7 @@
     onBeforeUpdate(() => {
         initView()
     })
-    //向喜欢列表中进行添加歌曲
-    const addLikeMusicList = (music:musictype) =>{
-        music.like = true
-        const repeatMusic = MusicStore.LikeMusicList.some(item => item.id === music.id)
-        if(repeatMusic){
-            return
-        }else{
-            MusicStore.LikeMusicList.unshift(music)
-        }
-    }
-   //前往歌词页面
+   //前往MV页面
     const goVideo = (id:number) => {
         router.push({
            path: '/musicvideo',
@@ -104,20 +79,8 @@
         showSongListFlag.value = true
         nowMusic.value = music
     }
-     //向播放列表中添加歌曲
-    const addPlayList = (id:number) => {
-        const addMusic = MusicStore.MusicList.find(music => music.id === id)    //想要添加的歌曲
-        const repeatMusic =  MusicStore.playList.find(music => music.id === id) //播放列表中的重复歌曲
-        if(addMusic && !repeatMusic){
-            MusicStore.playList.unshift(addMusic)
-            MusicStore.isinitialization = true
-            MusicStore.playMusicById(id)
-        }
-    }
     //向歌单列表中添加歌曲
     const addSongList = () => {
-        console.log(11);
-        
         if(SongListTitle.value !== ''){
             nowSongList.value = finnalySongList.value.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
             const repeatMusic = nowSongList.value?.song.find((song:musictype) => song.id === nowMusic.value.id )
@@ -132,42 +95,6 @@
             showSongListFlag.value = false
         }
     }   
-     //对喜欢列表进行监听并存入本地  
-    watch(
-        () => MusicStore.LikeMusicList,
-        () => {
-            localStorage.setItem('MusicListLike',JSON.stringify(MusicStore.LikeMusicList))
-            
-        },{
-            deep: true
-    })
-    //对歌曲列表进行监听并存入本地
-    watch(
-        () => MusicStore.finallyMusic,
-        () => {
-            localStorage.setItem('MusicList',JSON.stringify(MusicStore.finallyMusic))
-        },{
-        deep:true
-    })
-       //对歌单列表进行监听
-    watch(
-        () => SongListStore.songLists,
-        () => {
-        localStorage.setItem('songListOne',JSON.stringify( SongListStore.songLists))
-        },{
-            deep:true
-        }
-    )
-    //对自己创建的歌单进行监听
-    watch(
-        SongListStore.createSongList,
-        () => {
-        localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
-        },
-        {
-            deep:true
-        }
-    )
 </script>
 
 <template>
@@ -176,25 +103,25 @@
             <tr 
             v-for="(music,index) in MusicSearch" 
             :key="music.id">
-                <td @click="addPlayList(music.id)">
+                <td @click="MusicStore.addPlayList(music.id)">
                     <img :src="`${music.img}`" alt="">
                 </td>
-                <td @click="addPlayList(music.id)">
+                <td @click="MusicStore.addPlayList(music.id)">
                     {{ music.name }}
                 </td>
-                <td @click="addPlayList(music.id)">
+                <td @click="MusicStore.addPlayList(music.id)">
                     {{ music.singers }}
                 </td>
                 <td>
                     <img 
-                    @click="addLikeMusicList(music)" 
+                    @click="MusicStore.switchLikeMusic(music)" 
                     :src="`${music.like || false ? '/images/hongaixin.svg':'/images/aixin.png'}`" 
                     alt="喜欢"
                     >
                 </td>
                 <td><img @click="goVideo(music.id)" src="/images/MV.png" alt=""></td>
                 <td><img @click="showSongList(music)" src="/images/jia.svg" alt=""></td>
-                <td><img @click="addPlayList(music.id)" src="../assets/icon/ai03.png" alt=""></td>
+                <td><img @click="MusicStore.addPlayList(music.id)" src="../assets/icon/ai03.png" alt=""></td>
             </tr>
         </table>
         <div v-else class="nothingMusic">

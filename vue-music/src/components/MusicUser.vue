@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { ref,watch } from 'vue'
-import { useRouter } from 'vue-router';
-import { useMusicStore } from '@/stores/music';
+import { useMusicStore } from '@/stores/musicapi';
 import { useSongListStore } from '@/stores/songList';
 //从歌单pinia中获取数据
 const SongListStore = useSongListStore()
 //从歌曲pinia中获取数据
 const MusicStore = useMusicStore()
-//定义路由器
-const router = useRouter()
 //定义是否为笔记页面
 const isCuttentNote = ref(false)
 //定义是否显示笔记
@@ -41,25 +38,23 @@ const createTalk = (talk:string) => {
     createTalkBox?.appendChild(div)
     note.value = ''
 } 
-//
+//对笔记列表进行遍历拿到每条笔记
 function getnotes () {
     talks.value.forEach(item => {
         createTalk(item)
     })
 }  
-//退出登录
-const clearUser = () => {
-    localStorage.removeItem('nowMusicUser')
-    location.href = '/login'
+//点击查看笔记
+const clickNote = () => {
+    if(isCuttentNote.value) return 
+    isShowNotes.value = true  // 会把 视图更新 放入微队列
+    Promise.resolve().then(getnotes)
+    isCuttentNote.value = true
 }
-//查看歌单
-const checkMusicList = (songListID:number) => {
-        router.push({
-            path:'/musiclistmain',
-            query:{
-                songListID:songListID
-            }
-    })
+//输入文本添加笔记
+const publishNote = (note:string) => {
+    talks.value!.push(note)
+    createTalk(note)
 }
 //创建歌单
 const createSongList = () => {
@@ -78,18 +73,6 @@ const createSongList = () => {
     SongListTitle.value = ''
     SongListImg.value = []
     isCreateSongList.value = false
-}
-//点击查看笔记
-const clickNote = () => {
-    if(isCuttentNote.value) return 
-    isShowNotes.value = true  // 会把 视图更新 放入微队列
-    Promise.resolve().then(getnotes)
-    isCuttentNote.value = true
-}
-//输入文本添加笔记
-const publishNote = (note:string) => {
-    talks.value!.push(note)
-    createTalk(note)
 }
 //获得创建歌单图片并进行判断
 const getSongListImg = (e:Event ) => {
@@ -113,13 +96,14 @@ const getSongListImg = (e:Event ) => {
         reader.readAsDataURL(flie)
         isAllowCreate = true
 }
+//退出登录
+const clearUser = () => {
+    localStorage.removeItem('nowMusicUser')
+    location.href = '/login'
+}
+//对笔记列表进行监听并存入本地
 watch(talks,() => {
     localStorage.setItem('notes',JSON.stringify(talks.value))
-},{
-    deep:true
-})
-watch(SongListStore.createSongList,() => {
-    localStorage.setItem('MySongList',JSON.stringify(SongListStore.createSongList))
 },{
     deep:true
 })
@@ -157,7 +141,7 @@ watch(SongListStore.createSongList,() => {
             <div class="UserMain">
                 <h3>我创建的歌单<span @click="isCreateSongList = true">添加歌单</span></h3>
                 <ul >
-                    <li v-for="(SongList,index) in SongListStore.createSongList" @click="checkMusicList(SongList.id)"><img :src="`${SongList.songListImg}`" alt=""></li>
+                    <li v-for="(SongList,index) in SongListStore.createSongList" @click="MusicStore.checkMusicList(SongList.id)"><img :src="`${SongList.songListImg}`" alt=""></li>
                 </ul>
             </div>
         </div>

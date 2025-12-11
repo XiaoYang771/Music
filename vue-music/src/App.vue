@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMusicStore } from './stores/music';
+import { useMusicStore } from './stores/musicapi';
 import HomePageAside from './components/HomePageAside.vue';
 import HomePageContent from './components/HomePageContent.vue';
 import ButtomApiBtn from './components/ButtomApiBtn.vue';

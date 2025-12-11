@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink,useRouter } from 'vue-router';
-import { useMusicStore } from '@/stores/music';
+import { useMusicStore } from '@/stores/musicapi';
 import { ref } from 'vue'
 //引入路由器
 const router = useRouter()
