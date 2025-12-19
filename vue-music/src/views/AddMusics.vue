@@ -66,12 +66,16 @@
             nowSongList.value = finnalySongList.value.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
             const repeatMusic = nowSongList.value?.song.find((song:song) => song.id === nowMusic.value.id )
             if(!repeatMusic){
-                if(nowSongList.value.id <= 4){
+                if(nowSongList.value.id <= 4){  //向官方歌单中添加
                     nowSongList.value.song.push(nowMusic.value)//向当前歌单中添加歌曲
-                }else{
+                    MusicStore.createMessage('添加成功','greenyellow')
+                }else{  //向自定义歌单中添加
                     MySongList.value = SongListStore.createSongList.find((songList:typeOne) => songList.title === SongListTitle.value)//当前歌单
                     MySongList.value.song.push(nowMusic.value)
+                    MusicStore.createMessage('添加成功','greenyellow')
                 }
+            }else{
+                MusicStore.createMessage('该歌曲已经在歌单中','red')
             }
             showSongListFlag.value = false
         }

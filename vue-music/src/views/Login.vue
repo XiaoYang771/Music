@@ -26,8 +26,6 @@ const errorPassWord = ref('')
 const errorEmail = ref('')
 //定义再次输入密码错误的消息
 const errorConfirmPassWord = ref('')
-//定义有无该用户的消息
-const errorForm = ref('')
 //定义用户信息的类型
 interface personType {
     username:string,
@@ -79,16 +77,23 @@ const checkEmail = () => {
 }
 //进行提交 注册 用户的信息
 const submitForm = () => {
-    if(checkUserName() && checkPassWord() && checkConfirmPassword() && checkEmail()){
-        person.value.push({username:username.value,password:password.value,email:email.value})
-        username.value = ''
-        password.value = ''
-        confirmPassword.value = ''
-        email.value = ''
-        errorForm.value = ''
-        toggleLoginflag.value = false
-    }else{
-        errorForm.value = '请输入表单信息'
+    for(const user of person.value) {
+        if(user.username === username.value || user.email === email.value) {
+            MusicStore.createMessage('用户名或邮箱以存在','red')
+            return
+        }
+    }
+    if (checkUserName() && checkPassWord() && checkConfirmPassword() && checkEmail()) {
+            person.value.push({username:username.value,password:password.value,email:email.value})
+            username.value = ''
+            password.value = ''
+            confirmPassword.value = ''
+            email.value = ''
+            toggleLoginflag.value = false
+            MusicStore.createMessage('注册成功','greenyellow')
+            return
+    } else {
+        MusicStore.createMessage('请输入表单信息','red')
     }
 }
 //切换登录注册
@@ -102,7 +107,6 @@ const toggleLogin = () => {
     errorPassWord.value = ''
     errorEmail.value = ''
     errorConfirmPassWord.value = ''
-    errorForm.value =''
 }
 //登录
 const Login = () =>{
@@ -112,7 +116,7 @@ const Login = () =>{
         MusicStore.isLogin = false
         MusicStore.nowMusicUser?.push(nowPerson)
     }else{
-        errorForm.value = '该用户尚不存在'
+        MusicStore.createMessage('该用户尚不存在','red')
     }
 }
 //对用户信息列表进行监听并存入本地
@@ -170,7 +174,6 @@ watch(person.value,() => {
                 </div>
                 <div>
                     <input @click="submitForm" type="button" value="Create Account">
-                    <p class="errorForm">{{ errorForm }}</p>
                 </div>
             </form>
             <p>Already a member?<a href="#" @click="toggleLogin"> Log in</a></p>
@@ -194,7 +197,6 @@ watch(person.value,() => {
                 </div>
                 <div>
                     <input @click="Login" type="button" value="Login">
-                    <p class="errorForm">{{ errorForm }}</p>
                 </div>
             </form>
             <p>Not a member?<a href="#" @click="toggleLogin"> Sign up</a></p>
@@ -210,110 +212,109 @@ watch(person.value,() => {
         opacity: 0;
     }
 }
-    #box{
-        position: relative;
-        width: 100%;
-        height: 100%;
-        background: #ffa17f;
-        background: linear-gradient(to right,#00223e,#ffa17f);
-        overflow: hidden;
-        .disappear{
-            position: absolute;
-            width: 500px;
-            height: 100px;
-            left: 0;
-            top: 300px;
-            text-align: center;
-            transform: translate(10%,10%);
-            span{
-                font-size: 50px;
-                color: #fff;
-                display: inline-block;
-                color: transparent;
-                text-shadow: 0px 0px 0px rgb(145, 240, 240);
-                animation: an-1 3s linear infinite;
-            }
-        }
-        .Sign{
-            position: absolute;
-            top: 150px;
-            left: 580px;
-            width: 300px;
-            height: 400px;
-            background-color: #005691;
-            border: 5px solid #005691;
-            box-shadow: 5px 5px 5px #0371c5 inset,5px 5px 5px #048bf1;
-            text-align: center;
+#box{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #ffa17f;
+    background: linear-gradient(to right,#00223e,#ffa17f);
+    overflow: hidden;
+    .disappear{
+        position: absolute;
+        width: 500px;
+        height: 100px;
+        left: 0;
+        top: 300px;
+        text-align: center;
+        transform: translate(10%,10%);
+        span{
+            font-size: 50px;
             color: #fff;
-            h2{
-                color: #fff;
-                text-align: center;
-                margin-top: 10px;
-            }
-            form{
-                div{
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 250px;
+            display: inline-block;
+            color: transparent;
+            text-shadow: 0px 0px 0px rgb(145, 240, 240);
+            animation: an-1 3s linear infinite;
+        }
+    }
+    .Sign{
+        position: absolute;
+        top: 150px;
+        left: 580px;
+        width: 300px;
+        height: 400px;
+        background-color: #005691;
+        border: 5px solid #005691;
+        box-shadow: 5px 5px 5px #0371c5 inset,5px 5px 5px #048bf1;
+        text-align: center;
+        color: #fff;
+        h2{
+            color: #fff;
+            text-align: center;
+            margin-top: 10px;
+        }
+        form{
+            div{
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 250px;
+                height: 30px;
+                border-radius: 40px;
+                margin: 30px 25px;
+                span{
+                    display: block;
                     height: 30px;
-                    border-radius: 40px;
-                    margin: 30px 25px;
-                    span{
-                        display: block;
-                        height: 30px;
-                        flex: 1.5;
-                        border-right: 2px solid aqua;
-                        border-radius: 20px 0 0 20px;
-                        background-color: #048bf1;
-                        img{
-                            width: 25px;
-                            height: 25px;
-                            margin: 2.5px;
-                        }
-                    }
-                    input{
-                        height: 30px;
-                        flex: 8.5;
-                        border: 0;
-                        border-radius: 0 20px 20px 0;
-                        background-color: #048bf1;
-                        color: #fff;
-                        font-size: 18px;
-                        &:focus{
-                            outline: #fff;
-                        }
-                    }
-                    input[type=button]{
-                        border-radius: 20px;
-                        background-color: aqua;
-                        cursor: pointer;
-                        font-size: 18px;
-                        font-weight: 600;
-                    }
-                    p{
-                        position: absolute;
-                        bottom: -25px;
-                        left: 30px;
-                        color: red;
-                    }
-                    .errorForm{
-                        position: absolute;
-                        bottom: -25px;
-                        left: 80px;
+                    flex: 1.5;
+                    border-right: 2px solid aqua;
+                    border-radius: 20px 0 0 20px;
+                    background-color: #048bf1;
+                    img{
+                        width: 25px;
+                        height: 25px;
+                        margin: 2.5px;
                     }
                 }
-        }
-         p{
-            font-size: 14px;
-            color: #ccc;
-            a{
-                color: #fff;
-                text-decoration: none;
+                input{
+                    height: 30px;
+                    flex: 8.5;
+                    border: 0;
+                    border-radius: 0 20px 20px 0;
+                    background-color: #048bf1;
+                    color: #fff;
+                    font-size: 18px;
+                    &:focus{
+                        outline: #fff;
+                    }
+                }
+                input[type=button]{
+                    border-radius: 20px;
+                    background-color: aqua;
+                    cursor: pointer;
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+                p{
+                    position: absolute;
+                    bottom: -25px;
+                    left: 30px;
+                    color: red;
+                }
+                .errorForm{
+                    position: absolute;
+                    bottom: -25px;
+                    left: 80px;
+                }
             }
-        }
-     }
     }
-     
+     p{
+        font-size: 14px;
+        color: #ccc;
+        a{
+            color: #fff;
+            text-decoration: none;
+        }
+    }
+    }
+}
 </style>

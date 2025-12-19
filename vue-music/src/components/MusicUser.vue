@@ -68,11 +68,14 @@ const createSongList = () => {
             isDelete:true
         }
     )
-    }
     isAllowCreate = false
     SongListTitle.value = ''
     SongListImg.value = []
     isCreateSongList.value = false
+    MusicStore.createMessage('创建成功','greenyellow')
+    }else if (SongListImg.value.length <= 0){
+         MusicStore.createMessage('请选择歌单的封面','red')
+    }
 }
 //获得创建歌单图片并进行判断
 const getSongListImg = (e:Event ) => {
@@ -84,7 +87,7 @@ const getSongListImg = (e:Event ) => {
         alert('图片大小不能超过500KB')
         target.files = null
         isAllowCreate = false
-        return
+        return 
      }
         const reader = new FileReader()
         reader.onload = (event) => {

@@ -5,6 +5,9 @@ import { useSongListStore } from "./songList";
 import { useStateMusic } from "./music";
 //引入解析lrc歌词的函数
 import { parseLrc } from '@/utils/lrcParser'
+
+let isShowMessage = false
+
 export const useMusicStore = defineStore('music',() => {
     //引入路由器
     const router = useRouter()
@@ -291,6 +294,32 @@ export const useMusicStore = defineStore('music',() => {
             LikeMusicList.value.push(item)
         }
     }
+    //封装消息提示操作
+    function createMessage (msg:String,color:String) {
+        if(isShowMessage) {
+            return
+        }
+        isShowMessage = true
+        let div = document.createElement('div')
+        div.innerText = `${msg}`
+        div.style.position = 'absolute'
+        div.style.width = '300px'
+        div.style.height = '60px'
+        div.style.color = `${color}`
+        div.style.backgroundColor = `rgba(0,0,0,0.5)`
+        div.style.textAlign = 'center'
+        div.style.lineHeight = '60px'
+        div.style.top = '60px'
+        div.style.left = '600px'
+        div.style.zIndex = '10000'
+        div.style.borderRadius = '20px'
+        const app = document.querySelector('#app')
+        app?.appendChild(div)
+        setTimeout(() => {
+            app?.removeChild(div)
+            isShowMessage = false
+        },1000)
+    }
     //对当前用户信息进行监听并存入本地，便于下次不用在进行登录
     watch(nowMusicUser, () => {
         localStorage.setItem('nowMusicUser', JSON.stringify(nowMusicUser.value))
@@ -318,6 +347,6 @@ export const useMusicStore = defineStore('music',() => {
             LikeMusicList, playList, finallyMusic, finallyMusicIndex, subjectColor, subjectColorWidth, isinitialization,
             isShowSongList, isLogin, nowMusicUser, filterMusicLike,
             updateAudioTime, switchToNextMusic, switchToPreMusic, setLyrics, handlePlay, playMusicById, changeColor,
-            addPlayList, addPlayListAll, checkMusicList, switchLikeMusic,clearMusicLike
+            addPlayList, addPlayListAll, checkMusicList, switchLikeMusic, clearMusicLike, createMessage, 
         }
 })
